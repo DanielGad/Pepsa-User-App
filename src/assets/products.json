@@ -1,0 +1,552 @@
+[
+  {
+    "id": 1,
+    "name": "Luxury Bag",
+    "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
+    "price": 1500.00,
+    "image": [
+      "../assets/images/bags.png",
+      "../assets/images/bags.png",
+      "../assets/images/bags.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.8,
+    "reviews": [
+      {
+        "user": "Alice Smith",
+        "title": "Amazing bag!",
+        "comment": "Absolutely love this bag! Worth every penny.",
+        "rating": 5
+      },
+      {
+        "user": "Bob Johnson",
+        "title": "Good quality",
+        "comment": "Great quality, but a bit expensive.",
+        "rating": 4
+      },
+      {
+        "user": "Diana Prince",
+        "title": "Stylish and functional",
+        "comment": "This bag is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Ethan Hunt",
+        "title": "Great for travel",
+        "comment": "Perfect size for travel. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 1500.00
+      },
+      {
+        "color": "Brown",
+        "size": 1600.00
+      },
+      {
+        "color": "Red",
+        "price": 1700.00
+      },
+      {
+        "color": "Blue",
+        "price": 1800.00
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Quality Belts",
+    "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
+    "price": 500.00,
+    "image": [
+      "../assets/images/belts.png",
+      "../assets/images/belts.png",
+      "../assets/images/belts.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.5,
+    "reviews": [
+      {
+        "user": "John Doe",
+        "title": "Great belt!",
+        "comment": "This belt is very durable and stylish.",
+        "rating": 5
+      },
+      {
+        "user": "Clark Kent",
+        "title": "Stylish and functional",
+        "comment": "This belt is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Bruce Wayne",
+        "title": "Great for everyday use",
+        "comment": "Perfect for everyday use. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 500.00
+      },
+      {
+        "color": "Brown",
+        "size": 600.00
+      },
+      {
+        "color": "Red",
+        "price": 700.00
+      },
+      {
+        "color": "Blue",
+        "price": 800.00
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Luxury Bag",
+    "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
+    "price": 1500.00,
+    "image": [
+      "../assets/images/bags.png",
+      "../assets/images/bags.png",
+      "../assets/images/bags.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.8,
+    "reviews": [
+      {
+        "user": "Alice Smith",
+        "title": "Amazing bag!",
+        "comment": "Absolutely love this bag! Worth every penny.",
+        "rating": 5
+      },
+      {
+        "user": "Bob Johnson",
+        "title": "Good quality",
+        "comment": "Great quality, but a bit expensive.",
+        "rating": 4
+      },
+      {
+        "user": "Diana Prince",
+        "title": "Stylish and functional",
+        "comment": "This bag is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Ethan Hunt",
+        "title": "Great for travel",
+        "comment": "Perfect size for travel. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 1500.00
+      },
+      {
+        "color": "Brown",
+        "size": 1600.00
+      },
+      {
+        "color": "Red",
+        "price": 1700.00
+      },
+      {
+        "color": "Blue",
+        "price": 1800.00
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Quality Belts",
+    "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
+    "price": 500.00,
+    "image": [
+      "../assets/images/belts.png",
+      "../assets/images/belts.png",
+      "../assets/images/belts.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.5,
+    "reviews": [
+      {
+        "user": "John Doe",
+        "title": "Great belt!",
+        "comment": "This belt is very durable and stylish.",
+        "rating": 5
+      },
+      {
+        "user": "Clark Kent",
+        "title": "Stylish and functional",
+        "comment": "This belt is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Bruce Wayne",
+        "title": "Great for everyday use",
+        "comment": "Perfect for everyday use. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 500.00
+      },
+      {
+        "color": "Brown",
+        "size": 600.00
+      },
+      {
+        "color": "Red",
+        "price": 700.00
+      },
+      {
+        "color": "Blue",
+        "price": 800.00
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Luxury Bag",
+    "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
+    "price": 1500.00,
+    "image": [
+      "../assets/images/bags.png",
+      "../assets/images/bags.png",
+      "../assets/images/bags.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.8,
+    "reviews": [
+      {
+        "user": "Alice Smith",
+        "title": "Amazing bag!",
+        "comment": "Absolutely love this bag! Worth every penny.",
+        "rating": 5
+      },
+      {
+        "user": "Bob Johnson",
+        "title": "Good quality",
+        "comment": "Great quality, but a bit expensive.",
+        "rating": 4
+      },
+      {
+        "user": "Diana Prince",
+        "title": "Stylish and functional",
+        "comment": "This bag is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Ethan Hunt",
+        "title": "Great for travel",
+        "comment": "Perfect size for travel. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 1500.00
+      },
+      {
+        "color": "Brown",
+        "size": 1600.00
+      },
+      {
+        "color": "Red",
+        "price": 1700.00
+      },
+      {
+        "color": "Blue",
+        "price": 1800.00
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Quality Belts",
+    "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
+    "price": 500.00,
+    "image": [
+      "../assets/images/belts.png",
+      "../assets/images/belts.png",
+      "../assets/images/belts.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.5,
+    "reviews": [
+      {
+        "user": "John Doe",
+        "title": "Great belt!",
+        "comment": "This belt is very durable and stylish.",
+        "rating": 5
+      },
+      {
+        "user": "Clark Kent",
+        "title": "Stylish and functional",
+        "comment": "This belt is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Bruce Wayne",
+        "title": "Great for everyday use",
+        "comment": "Perfect for everyday use. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 500.00
+      },
+      {
+        "color": "Brown",
+        "size": 600.00
+      },
+      {
+        "color": "Red",
+        "price": 700.00
+      },
+      {
+        "color": "Blue",
+        "price": 800.00
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Luxury Bag",
+    "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
+    "price": 1500.00,
+    "image": [
+      "../assets/images/bags.png",
+      "../assets/images/bags.png",
+      "../assets/images/bags.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.8,
+    "reviews": [
+      {
+        "user": "Alice Smith",
+        "title": "Amazing bag!",
+        "comment": "Absolutely love this bag! Worth every penny.",
+        "rating": 5
+      },
+      {
+        "user": "Bob Johnson",
+        "title": "Good quality",
+        "comment": "Great quality, but a bit expensive.",
+        "rating": 4
+      },
+      {
+        "user": "Diana Prince",
+        "title": "Stylish and functional",
+        "comment": "This bag is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Ethan Hunt",
+        "title": "Great for travel",
+        "comment": "Perfect size for travel. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 1500.00
+      },
+      {
+        "color": "Brown",
+        "size": 1600.00
+      },
+      {
+        "color": "Red",
+        "price": 1700.00
+      },
+      {
+        "color": "Blue",
+        "price": 1800.00
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Quality Belts",
+    "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
+    "price": 500.00,
+    "image": [
+      "../assets/images/belts.png",
+      "../assets/images/belts.png",
+      "../assets/images/belts.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.5,
+    "reviews": [
+      {
+        "user": "John Doe",
+        "title": "Great belt!",
+        "comment": "This belt is very durable and stylish.",
+        "rating": 5
+      },
+      {
+        "user": "Clark Kent",
+        "title": "Stylish and functional",
+        "comment": "This belt is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Bruce Wayne",
+        "title": "Great for everyday use",
+        "comment": "Perfect for everyday use. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 500.00
+      },
+      {
+        "color": "Brown",
+        "size": 600.00
+      },
+      {
+        "color": "Red",
+        "price": 700.00
+      },
+      {
+        "color": "Blue",
+        "price": 800.00
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Luxury Bag",
+    "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
+    "price": 1500.00,
+    "image": [
+      "../assets/images/bags.png",
+      "../assets/images/bags.png",
+      "../assets/images/bags.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.8,
+    "reviews": [
+      {
+        "user": "Alice Smith",
+        "title": "Amazing bag!",
+        "comment": "Absolutely love this bag! Worth every penny.",
+        "rating": 5
+      },
+      {
+        "user": "Bob Johnson",
+        "title": "Good quality",
+        "comment": "Great quality, but a bit expensive.",
+        "rating": 4
+      },
+      {
+        "user": "Diana Prince",
+        "title": "Stylish and functional",
+        "comment": "This bag is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Ethan Hunt",
+        "title": "Great for travel",
+        "comment": "Perfect size for travel. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 1500.00
+      },
+      {
+        "color": "Brown",
+        "size": 1600.00
+      },
+      {
+        "color": "Red",
+        "price": 1700.00
+      },
+      {
+        "color": "Blue",
+        "price": 1800.00
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Quality Belts",
+    "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
+    "price": 500.00,
+    "image": [
+      "../assets/images/belts.png",
+      "../assets/images/belts.png",
+      "../assets/images/belts.png"
+    ],
+    "category": "Fashion",
+    "rating": 4.5,
+    "reviews": [
+      {
+        "user": "John Doe",
+        "title": "Great belt!",
+        "comment": "This belt is very durable and stylish.",
+        "rating": 5
+      },
+      {
+        "user": "Clark Kent",
+        "title": "Stylish and functional",
+        "comment": "This belt is both stylish and functional. I love it!",
+        "rating": 5
+      },
+      {
+        "user": "Bruce Wayne",
+        "title": "Great for everyday use",
+        "comment": "Perfect for everyday use. Highly recommend!",
+        "rating": 5
+      }
+    ],
+    "Avaliability": "In Stock",
+    "Variation": [
+      {
+        "color": "Black",
+        "price": 500.00
+      },
+      {
+        "color": "Brown",
+        "size": 600.00
+      },
+      {
+        "color": "Red",
+        "price": 700.00
+      },
+      {
+        "color": "Blue",
+        "price": 800.00
+      }
+    ]
+  }
+]
