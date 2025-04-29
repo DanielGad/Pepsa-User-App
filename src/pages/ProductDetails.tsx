@@ -48,7 +48,7 @@ const ProductDetails = () => {
             
         <div className="flex flex-col md:flex-row justify-between">
           <h3 className="text-xl">{product.name}</h3>
-          <h3 className="text-xl"><b>N{product.price}</b></h3>
+          <h3 className="text-xl"><b>₦{product.price}</b></h3>
           <p className="">Avaliability: <span className="text-green-500">{product.Avaliability}</span></p>
         </div>
         <div className="flex items-center text-yellow-500 mt-5">

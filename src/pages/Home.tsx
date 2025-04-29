@@ -53,7 +53,7 @@ const Home = () => {
               />
               </Link>
               <h3 className="text-lg font-medium text-gray-800">{product.name}</h3>
-              <p className="text-red-600 font-bold mt-2">N{product.price.toFixed(2)}</p>
+              <p className="text-red-600 font-bold mt-2">₦{product.price.toFixed(2)}</p>
               <button className="mt-4 bg-red-600 text-white w-full py-2 rounded-xl hover:bg-red-700 transition-all cursor-pointer">
                 Add to Cart
               </button>
