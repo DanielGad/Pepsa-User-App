@@ -5,9 +5,9 @@
     "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
     "price": 1500.00,
     "image": [
-      "../assets/images/bags.png",
-      "../assets/images/bags.png",
-      "../assets/images/bags.png"
+      "../bags.png",
+      "../bags.png",
+      "../bags.png"
     ],
     "category": "Fashion",
     "rating": 4.8,
@@ -63,9 +63,9 @@
     "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
     "price": 500.00,
     "image": [
-      "../assets/images/belts.png",
-      "../assets/images/belts.png",
-      "../assets/images/belts.png"
+      "../belts.png",
+      "../belts.png",
+      "../belts.png"
     ],
     "category": "Fashion",
     "rating": 4.5,
@@ -115,9 +115,9 @@
     "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
     "price": 1500.00,
     "image": [
-      "../assets/images/bags.png",
-      "../assets/images/bags.png",
-      "../assets/images/bags.png"
+      "../bags.png",
+      "../bags.png",
+      "../bags.png"
     ],
     "category": "Fashion",
     "rating": 4.8,
@@ -173,9 +173,9 @@
     "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
     "price": 500.00,
     "image": [
-      "../assets/images/belts.png",
-      "../assets/images/belts.png",
-      "../assets/images/belts.png"
+      "../belts.png",
+      "../belts.png",
+      "../belts.png"
     ],
     "category": "Fashion",
     "rating": 4.5,
@@ -225,9 +225,9 @@
     "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
     "price": 1500.00,
     "image": [
-      "../assets/images/bags.png",
-      "../assets/images/bags.png",
-      "../assets/images/bags.png"
+      "../bags.png",
+      "../bags.png",
+      "../bags.png"
     ],
     "category": "Fashion",
     "rating": 4.8,
@@ -283,9 +283,9 @@
     "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
     "price": 500.00,
     "image": [
-      "../assets/images/belts.png",
-      "../assets/images/belts.png",
-      "../assets/images/belts.png"
+      "../belts.png",
+      "../belts.png",
+      "../belts.png"
     ],
     "category": "Fashion",
     "rating": 4.5,
@@ -335,9 +335,9 @@
     "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
     "price": 1500.00,
     "image": [
-      "../assets/images/bags.png",
-      "../assets/images/bags.png",
-      "../assets/images/bags.png"
+      "../bags.png",
+      "../bags.png",
+      "../bags.png"
     ],
     "category": "Fashion",
     "rating": 4.8,
@@ -393,9 +393,9 @@
     "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
     "price": 500.00,
     "image": [
-      "../assets/images/belts.png",
-      "../assets/images/belts.png",
-      "../assets/images/belts.png"
+      "../belts.png",
+      "../belts.png",
+      "../belts.png"
     ],
     "category": "Fashion",
     "rating": 4.5,
@@ -445,9 +445,9 @@
     "description": "A luxury bag made from high-quality materials, Perfect for any occasion, Stylish and functional.",
     "price": 1500.00,
     "image": [
-      "../assets/images/bags.png",
-      "../assets/images/bags.png",
-      "../assets/images/bags.png"
+      "../bags.png",
+      "../bags.png",
+      "../bags.png"
     ],
     "category": "Fashion",
     "rating": 4.8,
@@ -503,9 +503,9 @@
     "description": "A high-quality leather belt that is both stylish and durable. Perfect for any outfit.",
     "price": 500.00,
     "image": [
-      "../assets/images/belts.png",
-      "../assets/images/belts.png",
-      "../assets/images/belts.png"
+      "../belts.png",
+      "../belts.png",
+      "../belts.png"
     ],
     "category": "Fashion",
     "rating": 4.5,

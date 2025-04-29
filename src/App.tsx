@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 
 import Home from './pages/Home';
+import WhatsAppButton from './components/WhatsappButton';
 // import Categories from './pages/Categories';
 // import Sales from './pages/Sales';
 // import BestSeller from './pages/BestSeller';
@@ -13,6 +14,7 @@ function App() {
   return (
     <Router>
       <Navbar />
+      <WhatsAppButton />
       <div className="pt-24"> 
         <Routes>
           <Route path="/" element={<Home />} />

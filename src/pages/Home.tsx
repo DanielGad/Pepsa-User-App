@@ -1,12 +1,65 @@
 import DiademLogo from '../assets/images/diadem-luxury-logo.png';
+import Products from '../assets/products.json'
+import Footer from '../components/Footer';
+
+const categories = [
+  "All", 
+  "Clothings", 
+  "Bags", 
+  "Hair", 
+  "Skincare", 
+  "Toys", 
+  "Shoes", 
+  "Accessories", 
+  "Jewelry"
+];
 
 const Home = () => {
   return (
     <div className="">
-      <section className="header-container relative flex flex-col items-center justify-center mx-20 " >
+      <section className="header-container relative flex flex-col items-center justify-center lg:mx-20 " >
         <img src={DiademLogo} alt="Diadem Logo" className='shadow-md'/>
         <span className="Diadem text-4xl font-bold text-white">Diadem Luxury</span>
       </section>
+
+      <section className="w-full mt-8 px-4 lg:px-20">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Shop by Category</h2>
+
+        <div className="flex space-x-2 lg:space-x-10 overflow-x-auto scrollbar-hide pb-4">
+          {categories.map((category) => (
+            <div 
+              key={category}
+              className="flex-shrink-0 bg-white rounded-xl border border-[#a00000] w-[150px] text-center py-1 text-gray-700 font-medium shadow hover:bg-[#a000004d] cursor-pointer transition-all"
+            >
+              {category}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Products Section */}
+      <section className="w-full mt-12 px-4 lg:px-20">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Featured Products</h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {Products.slice(0, 8).map((product) => (
+            <div key={product.id} className="bg-white shadow rounded-lg p-4 flex flex-col items-center text-center">
+              <img 
+                src={product.image?.[1] || product.image?.[0]} 
+                alt={product.name} 
+                className="w-60 h-full object-cover rounded-md mb-4" 
+              />
+              <h3 className="text-lg font-medium text-gray-800">{product.name}</h3>
+              <p className="text-red-600 font-bold mt-2">N{product.price.toFixed(2)}</p>
+              <button className="mt-4 bg-red-600 text-white w-full py-2 rounded-xl hover:bg-red-700 transition-all cursor-pointer">
+                Add to Cart
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Footer />
     </div>
   )
 }
