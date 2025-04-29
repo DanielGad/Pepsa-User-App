@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import DiademLogo from '../assets/images/diadem-luxury-logo.png';
 import Products from '../assets/products.json'
 import Footer from '../components/Footer';
+import { useCart } from '../components/CartContext';
 
 const categories = [
   "All", 
@@ -16,6 +17,10 @@ const categories = [
 ];
 
 const Home = () => {
+  const { addToCart } = useCart();
+  const selectedVariation = Products[0].Variation[0];
+  const quantity = 1; 
+
   return (
     <div className="">
       <section className="header-container text-center relative flex flex-col items-center justify-center lg:mx-20 " >
@@ -39,7 +44,7 @@ const Home = () => {
       </section>
 
       {/* Products Section */}
-      <section className="w-full mt-12 px-4 lg:px-20">
+      <section className="w-full mt-12 px-4 lg:px-20 mb-20">
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">Featured Products</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -55,7 +60,7 @@ const Home = () => {
               <h3 className="text-lg font-medium text-gray-800">{product.name}</h3>
               <p className="text-red-600 font-bold mt-2">₦{(product.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
-              <button className="mt-4 bg-red-600 text-white w-full py-2 rounded-xl hover:bg-red-600 transition-all cursor-pointer">
+              <button className="mt-4 bg-red-600 text-white w-full py-2 rounded-xl hover:bg-red-900 transition transform active:scale-90 cursor-pointer" onClick={() => addToCart(product, selectedVariation, quantity)}>
                 Add to Cart
               </button>
             </div>

@@ -4,11 +4,18 @@ import { FaBars, FaTimes, FaSearch, FaChevronRight } from 'react-icons/fa';
 import DiademLogo from '../assets/images/diadem-luxury-logo.png';
 import AccountIcon from "../assets/images/account-icon.png";
 import CartIcon from "../assets/images/cart-icon.png";
+import { useCart } from "./CartContext"; // adjust the path if needed
+
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
+
+  const { cartItems } = useCart();
+
+  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
 
   return (
     <nav className="w-full flex items-center justify-between px-4 md:px-20 py-4 bg-white fixed top-0 left-0 z-50 border border-bottom-2 border-gray-400">
@@ -56,7 +63,14 @@ const Navbar = () => {
           <img src={AccountIcon} alt="Account" className="w-8 lg:w-8" />
         </Link>
         <Link to="/cart">
-          <img src={CartIcon} alt="Cart" className="w-8 lg:w-8" />
+        <div className="relative">
+           <img src={CartIcon} alt="Cart" className="w-8 lg:w-8" />
+          {totalItems > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {totalItems}
+            </span>
+          )}
+        </div>
         </Link>
       </div>
 

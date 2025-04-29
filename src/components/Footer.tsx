@@ -3,7 +3,7 @@ import Location from '../assets/images/location.png'
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white px-6 md:px-20 py-10 mt-20">
+    <footer className="bg-black text-white px-6 md:px-20 py-10">
       <div className="flex flex-col md:flex-row justify-between gap-10">
         
         {/* Left Section */}
