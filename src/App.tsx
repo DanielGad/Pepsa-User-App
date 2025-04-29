@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 
 import Home from './pages/Home';
 import WhatsAppButton from './components/WhatsappButton';
+import ProductDetails from './pages/ProductDetails';
 // import Categories from './pages/Categories';
 // import Sales from './pages/Sales';
 // import BestSeller from './pages/BestSeller';
@@ -18,6 +19,7 @@ function App() {
       <div className="pt-24"> 
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
           {/* <Route path="/categories" element={<Categories />} />
           <Route path="/sales" element={<Sales />} />
           <Route path="/best-seller" element={<BestSeller />} />

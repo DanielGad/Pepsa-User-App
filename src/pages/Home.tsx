@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import DiademLogo from '../assets/images/diadem-luxury-logo.png';
 import Products from '../assets/products.json'
 import Footer from '../components/Footer';
@@ -44,11 +45,13 @@ const Home = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {Products.slice(0, 8).map((product) => (
             <div key={product.id} className="bg-white shadow rounded-lg p-4 flex flex-col items-center text-center">
+              <Link to={`/product/${product.id}`}>
               <img 
                 src={product.image?.[1] || product.image?.[0]} 
                 alt={product.name} 
                 className="w-60 h-full object-cover rounded-md mb-4" 
               />
+              </Link>
               <h3 className="text-lg font-medium text-gray-800">{product.name}</h3>
               <p className="text-red-600 font-bold mt-2">N{product.price.toFixed(2)}</p>
               <button className="mt-4 bg-red-600 text-white w-full py-2 rounded-xl hover:bg-red-700 transition-all cursor-pointer">
