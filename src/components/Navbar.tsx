@@ -16,7 +16,7 @@ const Navbar = () => {
       <div className="flex items-center space-x-3">
         {/* Hamburger (Mobile Only) */}
         <button
-          className="md:hidden text-2xl text-[#a00000]"
+          className="md:hidden text-2xl text-red-600"
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >

@@ -48,7 +48,8 @@ const ProductDetails = () => {
             
         <div className="flex flex-col md:flex-row justify-between">
           <h3 className="text-xl">{product.name}</h3>
-          <h3 className="text-xl"><b>₦{product.price}</b></h3>
+          <h3 className="text-xl"><b>₦{(product.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </b></h3>
           <p className="">Avaliability: <span className="text-green-500">{product.Avaliability}</span></p>
         </div>
         <div className="flex items-center text-yellow-500 mt-5">
@@ -74,7 +75,7 @@ const ProductDetails = () => {
       {/* Right: Product Info */}
       <div>
         <h2 className="text-2xl font-bold mb-2">Item Details</h2>
-        <p className="text-gray-600 mb-4">{product.description}</p>
+        <p className="text-gray-600 mb-4">{product.description} Lorem ipsum dolor sit, amet consectetur adipisicing elit. Maxime ullam, tempore nemo quae delectus quisquam voluptatem reprehenderit possimus odio eligendi dolore eos neque repellat autem unde suscipit quidem cum alias!</p>
 
         <div className="mb-4">
           <p className="font-semibold text-2xl mb-2">Product Variation</p>
@@ -86,10 +87,11 @@ const ProductDetails = () => {
                 value={v.color}
                 checked={selectedColor === v.color}
                 onChange={() => setSelectedColor(v.color)}
-                className="accent-[#a00000]"
+                className="accent-red-600"
               />
               <span className="w-1/9">{v.color}</span>
-              <span className="ml-20 text-sm text-left">₦{(v.price ?? 0).toLocaleString()}</span>
+              <span className="ml-20 text-sm text-left">₦{(v.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
             </label>
           ))}
         </div>
@@ -108,14 +110,14 @@ const ProductDetails = () => {
           <button className="px-6 py-2 border rounded text-red-600 border-red-600 hover:bg-red-100">
             Buy Now
           </button>
-          <button className="px-6 py-2 bg-red-700 text-white rounded hover:bg-red-800">
+          <button className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-800">
             Add to Cart
           </button>
         </div>
 
       </div>
       {/* Reviews */}
-        <div className="mt-10 lg:mx-20 lg:w-full">
+        <div className="mt-5 lg:mx-20 lg:w-full">
           <h3 className="text-2xl font-semibold mb-3">Reviews</h3>
           <div className="mb-3">
           <input type="text" placeholder="Write a review" className="w-full py-3 pl-3 border border-gray-400" />

@@ -30,7 +30,7 @@ const Home = () => {
           {categories.map((category) => (
             <div 
               key={category}
-              className="flex-shrink-0 bg-white rounded-xl border border-[#a00000] w-[150px] text-center py-1 text-gray-700 font-medium shadow hover:bg-[#a000004d] cursor-pointer transition-all"
+              className="flex-shrink-0 bg-white rounded-xl border border-red-600 w-[150px] text-center py-1 text-gray-700 font-medium shadow hover:bg-[#a000004d] cursor-pointer transition-all"
             >
               {category}
             </div>
@@ -53,8 +53,9 @@ const Home = () => {
               />
               </Link>
               <h3 className="text-lg font-medium text-gray-800">{product.name}</h3>
-              <p className="text-red-600 font-bold mt-2">₦{product.price.toFixed(2)}</p>
-              <button className="mt-4 bg-red-600 text-white w-full py-2 rounded-xl hover:bg-red-700 transition-all cursor-pointer">
+              <p className="text-red-600 font-bold mt-2">₦{(product.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+              <button className="mt-4 bg-red-600 text-white w-full py-2 rounded-xl hover:bg-red-600 transition-all cursor-pointer">
                 Add to Cart
               </button>
             </div>
