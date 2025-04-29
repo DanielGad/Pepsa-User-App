@@ -18,7 +18,7 @@ const categories = [
 const Home = () => {
   return (
     <div className="">
-      <section className="header-container relative flex flex-col items-center justify-center lg:mx-20 " >
+      <section className="header-container text-center relative flex flex-col items-center justify-center lg:mx-20 " >
         <img src={DiademLogo} alt="Diadem Logo" className='shadow-md'/>
         <span className="Diadem text-4xl font-bold text-white">Diadem Luxury</span>
       </section>
