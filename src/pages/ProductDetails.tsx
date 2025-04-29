@@ -20,7 +20,7 @@ const ProductDetails = () => {
     <div className="p-6 md:p-20 grid grid-cols-1 md:grid-cols-2 gap-10 mt-[-50px]">
       {/* Left: Image Carousel */}
       <div className="flex flex-col mx-auto">
-        <div className="w-75 mx-auto md:w-100 h-100">
+        <div className="w-80 mx-auto md:w-100 h-100">
           <Swiper
               modules={[Autoplay, Pagination, Navigation]}
               slidesPerView={1}
