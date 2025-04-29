@@ -86,14 +86,25 @@ const Cart = () => {
         </div>
 
         {/* Footer Buttons */}
-        {cartItems.length > 0 && (
+        {cartItems.length > 0 ? (
           <div className="mt-6 mb-5 flex flex-col md:flex-row gap-4 justify-center">
-            <Link to="/categories" className="">
-            <button className="border px-8 py-3 rounded w-full hover:bg-gray-100 transition">Add Items</button>
+            <Link to="/">
+              <button className="border px-8 py-3 rounded w-full cursor-pointer hover:bg-gray-100 transition transform active:scale-90">
+                Add Items
+              </button>
             </Link>
-            <button className="bg-red-700 text-white px-8 py-3 rounded hover:bg-red-800 transition">
+            <button className="bg-red-700 text-white px-8 py-3 rounded cursor-pointer hover:bg-red-800 transition transform active:scale-90">
               Confirm Order
             </button>
+          </div>
+        ) : (
+          <div className="mt-10 text-center">
+            <p className="mb-4 text-gray-500 text-lg">Your cart is empty</p>
+            <Link to="/">
+              <button className="border px-6 py-3 w-full rounded cursor-pointer hover:bg-gray-100 transition transform active:scale-90">
+                Add Items
+              </button>
+            </Link>
           </div>
         )}
       </div>

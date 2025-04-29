@@ -85,7 +85,7 @@ const Cart = () => {
         {/* Footer buttons */}
         {cartItems.length > 0 ? (
           <div className="mt-6 mb-5 flex flex-col md:flex-row gap-4 justify-center">
-            <Link to="/categories">
+            <Link to="/">
               <button className="border px-8 py-3 rounded cursor-pointer hover:bg-gray-100 transition transform active:scale-90">
                 Add Items
               </button>
