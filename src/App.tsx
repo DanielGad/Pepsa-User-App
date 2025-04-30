@@ -13,6 +13,8 @@ import Cart from './pages/Cart';
 import { useEffect, useState } from 'react';
 import MobileCart from './pages/MobileCart';
 import ScrollToTop from './util/ScrollToTop';
+import Checkout from './pages/Checkout';
+import MobileCheckout from './pages/MobileCheckout';
 
 function App() {
 
@@ -39,11 +41,12 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/cart" element={isMobile ? <MobileCart /> : <Cart />} />
+          <Route path="/checkout" element={isMobile ? <MobileCheckout /> : <Checkout />} />
           {/* <Route path="/sales" element={<Sales />} />
           <Route path="/best-seller" element={<BestSeller />} />
           <Route path="/new-in" element={<NewIn />} />
           <Route path="/account" element={<Account />} /> */} 
-          <Route path="/cart" element={isMobile ? <MobileCart /> : <Cart />} />
         </Routes>
       </div>
     </Router>

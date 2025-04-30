@@ -3,7 +3,7 @@ import { useCart } from "../components/CartContext";
 import Footer from "../components/Footer";
 import { FaTrashAlt } from "react-icons/fa";
 
-const Cart = () => {
+const MobileCart = () => {
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
 
   return (
@@ -93,9 +93,11 @@ const Cart = () => {
                 Add Items
               </button>
             </Link>
-            <button className="bg-red-700 text-white px-8 py-3 rounded cursor-pointer hover:bg-red-800 transition transform active:scale-90">
+            <Link to="/checkout">
+            <button className="bg-red-700 text-white w-full px-8 py-3 rounded cursor-pointer hover:bg-red-800 transition transform active:scale-90">
               Confirm Order
             </button>
+            </Link>
           </div>
         ) : (
           <div className="mt-10 text-center">
@@ -114,4 +116,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default MobileCart;
