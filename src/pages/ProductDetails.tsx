@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import products from "../assets/products.json"; // Adjust path as needed
-import { FaRegStar, FaStar, FaStarHalf } from "react-icons/fa";
+import { FaRegStar, FaStar, FaStarHalf, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
@@ -15,8 +15,18 @@ const ProductDetails = () => {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedVariation, setSelectedVariation] = useState(product?.Variation[0]);
+  const [showReviews, setShowReviews] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(3);
 
   if (!product) return <div className="p-10">Product not found</div>;
+
+  const toggleReviews = () => {
+    setShowReviews(!showReviews);
+  };
+
+  const loadMore = () => {
+    setVisibleCount((prev) => prev + 3);
+  };
 
   return (
     <><div className="p-6 md:p-20 grid grid-cols-1 md:grid-cols-2 gap-10 mt-[-50px]">
@@ -28,7 +38,7 @@ const ProductDetails = () => {
             slidesPerView={1}
             loop
             autoplay={{ delay: 4000, disableOnInteraction: false }}
-            className="rounded-2xl"
+            className="rounded-sm"
             navigation={{
               nextEl: '.custom-next',
               prevEl: '.custom-prev',
@@ -39,7 +49,7 @@ const ProductDetails = () => {
                 <img
                   src={img}
                   alt={`About slide ${i + 1}`}
-                  className="w-full h-96 rounded-2xl object-cover" />
+                  className="w-full h-96 rounded-sm object-cover" />
               </SwiperSlide>
             ))}
             <div className="custom-prev absolute left-4 z-10"></div>
@@ -49,9 +59,9 @@ const ProductDetails = () => {
 
         <div className="flex flex-col md:flex-row justify-between">
           <h3 className="text-xl">{product.name}</h3>
-          <h3 className="text-xl"><b>₦{(product.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <h3 className="text-xl mt-2 md:mt-0"><b>₦{(product.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </b></h3>
-          <p className="">Avaliability: <span className="text-green-500">{product.Avaliability}</span></p>
+          <p className="mt-2 md:mt-0">Avaliability: <span className="text-green-500">{product.Avaliability}</span></p>
         </div>
         <div className="flex items-center text-yellow-500 mt-5">
           {/* Filled stars */}
@@ -111,7 +121,7 @@ const ProductDetails = () => {
           <button onClick={() => setQuantity((q) => q + 1)} className="px-3 py-1 text-red-600 border cursor-pointer border-red-600">+</button>
         </div>
 
-        <div className="flex justify-between space-x-10 py-4">
+        <div className="flex justify-between space-x-10 py-2">
         <button
           className="border px-4 py-4 w-full border-red-600 hover:bg-red-300 text-red-600 mb-4 rounded-md cursor-pointer transition transform active:scale-90"
           onClick={() => addToCart(product, selectedVariation, quantity)}
@@ -131,23 +141,56 @@ const ProductDetails = () => {
 
       </div>
       {/* Reviews */}
-      <div className="mt-5 lg:mx-20 lg:w-full">
-        <h3 className="text-2xl font-semibold mb-3">Reviews</h3>
-        <div className="mb-3">
-          <input type="text" placeholder="Write a review" className="w-full py-3 pl-3 border border-gray-400" />
-        </div>
-        {product.reviews.map((review, index) => (
-          <div key={index} className="py-3 text-sm">
-            <div className="flex items-center text-yellow-500 mb-2">
-              {Array(review.rating).fill(0).map((_, i) => <FaStar key={i} className="mr-2 mb-1" />)}
-              <p className="font-bold text-gray-800 text-sm">- {review.title}</p>
-            </div>
-
-            <p className="text-gray-600">{review.comment} Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae dicta ducimus pariatur aspernatur harum provident sequi aliquid, impedit inventore quod praesentium, voluptas, at voluptatibus ab nesciunt! Nisi autem rerum veritatis. – <span>{review.user}</span></p>
-          </div>
-        ))}
+      <div className="lg:mx-20 lg:w-full">
+      <div
+        className="flex items-center justify-between cursor-pointer mb-3"
+        onClick={toggleReviews}
+      >
+        <h3 className="text-2xl font-semibold">Reviews</h3>
+        {showReviews ? <FaChevronUp className="text-xl" /> : <FaChevronDown className="text-xl" />}
       </div>
-    </div><Footer /></>
+
+      {showReviews && (
+        <>
+          <div className="mb-3">
+            <input
+              type="text"
+              placeholder="Write a review"
+              className="w-full py-3 pl-3 border border-gray-400"
+            />
+          </div>
+
+          {product.reviews.slice(0, visibleCount).map((review, index) => (
+            <div key={index} className="py-3 text-sm">
+              <div className="flex items-center text-yellow-500 mb-2">
+                {Array(review.rating).fill(0).map((_, i) => (
+                  <FaStar key={i} className="mr-2 mb-1" />
+                ))}
+                <p className="font-bold text-gray-800 text-sm">- {review.title}</p>
+              </div>
+              <p className="text-gray-600">
+                {review.comment} Lorem ipsum dolor, sit amet consectetur adipisicing elit. Beatae id autem modi voluptate sit magnam enim ipsum maxime assumenda veniam corporis excepturi voluptas inventore unde est, natus commodi praesentium. Explicabo. – <span>{review.user}</span>
+              </p>
+            </div>
+          ))}
+
+          {visibleCount < product.reviews.length && (
+            <div className="text-center mt-4">
+              <button
+                onClick={loadMore}
+                className="text-red-600 cursor-pointer text-md hover:underline"
+              >
+                See more reviews
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+    </div>
+
+    <Footer />
+    </>
   );
 };
 

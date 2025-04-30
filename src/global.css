@@ -38,3 +38,48 @@
 .custom-next:hover {
   background-color: rgba(255, 255, 255, 1);
 }
+
+
+
+
+
+/* Custom navigation arrows */
+.custom-prev-home,
+.custom-next-home {
+  width: 30px;
+  height: 30px;
+  border: 2px solid red; 
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  bottom: -20px;
+  transform: translateY(-50%);
+  position: absolute;
+}
+
+.custom-prev-home::after,
+.custom-next-home::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-top: 3px solid red; /* Arrow color */
+  border-right: 3px solid red; /* Arrow color */
+}
+
+.custom-prev-home::after {
+  transform: rotate(-135deg);
+  margin-right: -2px;
+}
+
+.custom-next-home::after {
+  transform: rotate(45deg);
+  margin-left: -2px;
+}
+
+/* Hover effects */
+.custom-prev-home:hover,
+.custom-next-home:hover {
+  background-color: rgba(255, 255, 255, 1);
+}

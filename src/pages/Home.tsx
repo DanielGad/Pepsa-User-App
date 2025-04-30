@@ -44,28 +44,46 @@ const Home = () => {
       </section>
 
       {/* Products Section */}
-      <section className="w-full mt-12 px-4 lg:px-20 mb-20">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Featured Products</h2>
+      <section className="w-full mt-5 md:mt-12 px-4 lg:px-20 mb-10">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2 md:mb-6">Featured Products</h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {Products.slice(0, 8).map((product) => (
-            <div key={product.id} className="bg-white shadow rounded-lg p-4 flex flex-col items-center text-center">
+            <div key={product.id} className="bg-white shadow rounded-lg md:p-4 flex flex-col items-center text-center">
               <Link to={`/product/${product.id}`}>
               <img 
                 src={product.image?.[1] || product.image?.[0]} 
                 alt={product.name} 
-                className="w-60 h-full object-cover rounded-md mb-4" 
+                className="w-60 h-full object-cover rounded mb-4" 
               />
               </Link>
-              <h3 className="text-lg font-medium text-gray-800">{product.name}</h3>
-              <p className="text-red-600 font-bold mt-2">₦{(product.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-              <button className="mt-4 bg-red-600 text-white w-full py-2 rounded-xl hover:bg-red-900 transition transform active:scale-90 cursor-pointer" onClick={() => addToCart(product, selectedVariation, quantity)}>
-                Add to Cart
-              </button>
+              <div className='w-full text-left'>
+                <h3 className="text-lg font-medium text-gray-800 mt-2">{product.name}</h3>
+                <p className="text-red-600 font-bold">₦{(product.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+                <button className="mt-4 bg-red-600 text-white w-full py-2 rounded-md hover:bg-red-900 transition transform active:scale-90 cursor-pointer" onClick={() => addToCart(product, selectedVariation, quantity)}>
+                  Add to Cart
+                </button>
+              </div>
             </div>
           ))}
         </div>
+
+        <div className='relative flex justify-center items-center mt-10 md:hidden'>
+          <span className="custom-prev-home absolute left-30 z-10"></span>
+          1
+          <span className="custom-next-home absolute right-30 z-10"></span>
+        </div>
+
+        <div className='hidden md:block'>
+          <div className='relative flex justify-center items-center mt-10'>
+            <span className="custom-prev-home absolute left-130 z-10"></span>
+            1
+            <span className="custom-next-home absolute right-130 z-10"></span>
+          </div>
+        </div>
+
+        
       </section>
 
       <Footer />
