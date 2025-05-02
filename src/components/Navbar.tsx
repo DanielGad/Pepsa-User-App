@@ -20,22 +20,24 @@ const Navbar = () => {
   return (
     <nav className="w-full flex items-center justify-between px-4 md:px-20 py-4 bg-white fixed top-0 left-0 z-50 border border-bottom-2 border-gray-400">
       {/* Left Section: Hamburger + Logo + Brand */}
-      <div className="flex items-center space-x-3">
-        {/* Hamburger (Mobile Only) */}
-        <button
-          className="md:hidden text-2xl text-red-600"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </button>
+      <Link to="/">
+          <div className="flex items-center space-x-3">
+          {/* Hamburger (Mobile Only) */}
+          <button
+            className="md:hidden text-2xl text-red-600"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
 
-        {/* Logo + Brand */}
-        <img src={DiademLogo} alt="Diadem Luxury Logo" className="hidden md:block w-10 h-auto" />
-        <span className="Diadem hidden md:block text-xl font-bold text-gray-800">Diadem Luxury</span>
-        <img src={DiademLogo} alt="Diadem Luxury Logo" className="block md:hidden w-8 h-auto" />
-        <span className="Diadem block md:hidden text-lg font-bold text-gray-800">Diadem Luxury</span>
-      </div>
+          {/* Logo + Brand */}
+          <img src={DiademLogo} alt="Diadem Luxury Logo" className="hidden md:block w-10 h-auto" />
+          <span className="Diadem hidden md:block text-xl font-bold text-gray-800">Diadem Luxury</span>
+          <img src={DiademLogo} alt="Diadem Luxury Logo" className="block md:hidden w-8 h-auto" />
+          <span className="Diadem block md:hidden text-lg font-bold text-gray-800">Diadem Luxury</span>
+        </div>
+      </Link>
 
       {/* Center Links on Desktop */}
       <ul className="hidden md:flex items-center space-x-8 text-gray-700 font-medium">

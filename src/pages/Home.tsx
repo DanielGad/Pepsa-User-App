@@ -123,9 +123,9 @@ const Home = () => {
             <button
               onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
               disabled={currentPage === 1}
-              className="px-2 md:px-4 py-1 md:py-2 cursor-pointer border-2 text-red-600 border-red-600 rounded-full bg-white hover:bg-gray-100 disabled:opacity-50"
+              className="px-3 py-1  cursor-pointer border-2 text-red-600 border-red-600 rounded-full bg-white font-bold text-2xl hover:bg-gray-100 disabled:opacity-50"
             >
-              Prev
+              &lt;
             </button>
 
             <span className="font-semibold text-gray-700">
@@ -135,9 +135,9 @@ const Home = () => {
             <button
               onClick={() => currentPage < totalPages && setCurrentPage((prev) => prev + 1)}
               disabled={currentPage === totalPages}
-              className="px-2 md:px-4 py-1 md:py-2 cursor-pointer border-2 text-red-600 border-red-600 rounded-full bg-white hover:bg-gray-100 disabled:opacity-50"
+              className="px-3 py-1 cursor-pointer border-2 text-red-600 border-red-600 rounded-full font-bold text-2xl bg-white hover:bg-gray-100 disabled:opacity-50"
             >
-              Next
+              &gt;
             </button>
           </div>
         )}
