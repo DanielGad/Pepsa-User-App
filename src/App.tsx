@@ -15,6 +15,10 @@ import MobileCart from './pages/MobileCart';
 import ScrollToTop from './util/ScrollToTop';
 import Checkout from './pages/Checkout';
 import MobileCheckout from './pages/MobileCheckout';
+import DeliveryRequest from './pages/DeliveryRequest';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ChangePassword from './pages/ChangePassword';
 
 function App() {
 
@@ -43,6 +47,10 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/cart" element={isMobile ? <MobileCart /> : <Cart />} />
           <Route path="/checkout" element={isMobile ? <MobileCheckout /> : <Checkout />} />
+          <Route path="delivery-request" element={<DeliveryRequest />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Register />} />
+          <Route path="/change-password" element={<ChangePassword />} />
           {/* <Route path="/sales" element={<Sales />} />
           <Route path="/best-seller" element={<BestSeller />} />
           <Route path="/new-in" element={<NewIn />} />

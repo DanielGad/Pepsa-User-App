@@ -7,6 +7,7 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import 'swiper/swiper-bundle.css';
 import Footer from "../components/Footer";
 import { useCart } from "../components/CartContext";
+import ReviewModal from "../pages/ReviewModal";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -17,6 +18,8 @@ const ProductDetails = () => {
   const [selectedVariation, setSelectedVariation] = useState(product?.Variation[0]);
   const [showReviews, setShowReviews] = useState(true);
   const [visibleCount, setVisibleCount] = useState(3);
+  const [showModal, setShowModal] = useState(false);
+
 
   if (!product) return <div className="p-10">Product not found</div>;
 
@@ -157,7 +160,9 @@ const ProductDetails = () => {
               type="text"
               placeholder="Write a review"
               className="w-full py-3 pl-3 border border-gray-400"
+              onClick={() => setShowModal(true)}
             />
+          <ReviewModal isOpen={showModal} onClose={() => setShowModal(false)} />
           </div>
 
           {product.reviews.slice(0, visibleCount).map((review, index) => (
