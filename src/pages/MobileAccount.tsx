@@ -40,8 +40,8 @@ const MobileAccount = () => {
           </div>
         </Link>
 
-          <div className="flex text-gray-700 items-center justify-between p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer mb-5">
-            <div className="flex items-center space-x-3" onClick={() => setOpenModal(true)}>
+          <div className="flex text-gray-700 items-center justify-between p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer mb-5" onClick={() => setOpenModal(true)}>
+            <div className="flex items-center space-x-3">
               <img src={ChangePasswordIcon} alt="Change Password Icon" className="w-6"/>
               <span className="text-sm">Change password</span>
             </div>
