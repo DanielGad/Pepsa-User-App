@@ -25,7 +25,7 @@ const Categories = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const productRef = useRef<HTMLDivElement>(null);
-  const productsPerPage = 8;
+  const productsPerPage = 12;
 
   const selectedVariation = Products[0].Variation[0];
   const quantity = 1;
@@ -76,12 +76,12 @@ const Categories = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {paginatedProducts.map((product) => (
-            <div key={product.id} className="bg-white shadow rounded-lg md:p-4 flex flex-col items-center text-center">
+            <div key={product.id} className="bg-white shadow rounded-lg md:p-4 flex flex-col items-left text-center">
               <Link to={`/product/${product.id}`}>
                 <img 
                   src={product.image?.[1] || product.image?.[0]} 
                   alt={product.name} 
-                  className="w-60 h-full object-cover rounded mb-4" 
+                  className="w-full h-full object-cover rounded mb-4" 
                 />
               </Link>
               <div className='w-full text-left'>

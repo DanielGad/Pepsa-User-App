@@ -83,12 +83,12 @@ const Home = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {paginatedProducts.map((product) => (
-            <div key={product.id} className="bg-white shadow rounded-lg md:p-4 flex flex-col items-center text-center">
+            <div key={product.id} className="bg-white shadow rounded-lg md:p-4 flex flex-col items-left text-center">
               <Link to={`/product/${product.id}`}>
                 <img 
                   src={product.image?.[1] || product.image?.[0]} 
                   alt={product.name} 
-                  className="w-60 h-full object-cover rounded mb-4" 
+                  className="w-full h-full object-cover rounded mb-4" 
                 />
               </Link>
               <div className='w-full text-left'>
