@@ -3,22 +3,22 @@ import Location from '../assets/images/location.png'
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white px-6 md:px-20 py-10">
-      <div className="flex flex-col md:flex-row justify-between gap-10">
+    <footer className="bg-black text-white px-6 lg:px-20 py-10">
+      <div className="flex flex-col lg:flex-row justify-between gap-10">
         
         {/* Left Section */}
         <div className="flex flex-col space-y-8">
           {/* About Us */}
           <div>
             <h3 className="text-xl font-semibold mb-4">About Us</h3>
-            <p className="text-white w-[full] md:w-[400px]">
+            <p className="text-white w-[full] lg:w-[400px]">
               Diadem Luxury is a store that offers all your needs, from food stuff to fashion wears and all.
             </p>
           </div>
 
           {/* Contact Us */}
           <div>
-            <div className='flex flex-col md:flex-row md:justify-self-end md:gap-100 gap-10'>
+            <div className='flex flex-col lg:flex-row lg:justify-self-end lg:gap-100 gap-10'>
               <div>
                 <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
                 <div className='flex gap-2 items-center mb-2'>
@@ -32,7 +32,7 @@ const Footer = () => {
                 </div>
               </div>
 
-              <div className="w-full md:max-w-md">
+              <div className="w-full lg:max-w-md">
                 <h3 className="text-xl font-semibold mb-4">Sign Up For Newsletters</h3>
                 <p className="text-gray-400 mb-4">Stay updated with our latest offers and products.</p>
                 <form className="flex flex-col space-y-3">

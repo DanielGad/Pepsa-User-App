@@ -7,7 +7,7 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import 'swiper/swiper-bundle.css';
 import Footer from "../components/Footer";
 import { useCart } from "../components/CartContext";
-import ReviewModal from "../pages/ReviewModal";
+import ReviewModal from "../components/ReviewModal";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -16,7 +16,7 @@ const ProductDetails = () => {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedVariation, setSelectedVariation] = useState(product?.Variation[0]);
-  const [showReviews, setShowReviews] = useState(true);
+  const [showReviews, setShowReviews] = useState(false);
   const [visibleCount, setVisibleCount] = useState(3);
   const [showModal, setShowModal] = useState(false);
 
@@ -32,10 +32,10 @@ const ProductDetails = () => {
   };
 
   return (
-    <><div className="p-6 md:p-20 grid grid-cols-1 md:grid-cols-2 gap-10 mt-[-50px]">
+    <><div className="p-6 lg:p-20 grid grid-cols-1 lg:grid-cols-2 gap-10 mt-[-50px]">
       {/* Left: Image Carousel */}
       <div className="flex flex-col mx-auto">
-        <div className="w-80 mx-auto md:w-100 h-100">
+        <div className="w-80 mx-auto lg:w-100 h-100">
           <Swiper
             modules={[Autoplay, Pagination, Navigation]}
             slidesPerView={1}
@@ -60,11 +60,11 @@ const ProductDetails = () => {
           </Swiper>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between">
+        <div className="flex flex-col lg:flex-row justify-between">
           <h3 className="text-xl">{product.name}</h3>
-          <h3 className="text-xl mt-2 md:mt-0"><b>₦{(product.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <h3 className="text-xl mt-2 lg:mt-0"><b>₦{(product.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </b></h3>
-          <p className="mt-2 md:mt-0">Avaliability: <span className="text-green-500">{product.Avaliability}</span></p>
+          <p className="mt-2 lg:mt-0">Avaliability: <span className="text-green-500">{product.Avaliability}</span></p>
         </div>
         <div className="flex items-center text-yellow-500 mt-5">
           {/* Filled stars */}

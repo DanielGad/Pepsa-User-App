@@ -18,7 +18,9 @@ import MobileCheckout from './pages/MobileCheckout';
 import DeliveryRequest from './pages/DeliveryRequest';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import ChangePassword from './pages/ChangePassword';
+import MobileAccount from './pages/MobileAccount';
+import MobileAccDetails from './pages/MobileAccDetails';
+import MyAccount from './pages/MyAccount';
 
 function App() {
 
@@ -26,7 +28,7 @@ function App() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 900);
+      setIsMobile(window.innerWidth <= 1024);
     };
 
     checkMobile();
@@ -50,7 +52,8 @@ function App() {
           <Route path="delivery-request" element={<DeliveryRequest />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Register />} />
-          <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/account" element={isMobile ? <MobileAccount /> : <MyAccount />} />
+          <Route path="/my-details" element={<MobileAccDetails />} />
           {/* <Route path="/sales" element={<Sales />} />
           <Route path="/best-seller" element={<BestSeller />} />
           <Route path="/new-in" element={<NewIn />} />

@@ -21,7 +21,7 @@ const ReviewModal = ({ isOpen, onClose }: ReviewModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-red-100 bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-red-100 bg-opacity-50 flex justify-center items-center z-10">
       <div className="relative bg-white p-6 rounded-lg w-[90%] max-w-md shadow-md pt-15">
         
         {/* Close button */}
