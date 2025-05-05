@@ -1,110 +1,240 @@
-import { Link } from 'react-router-dom';
-import NGN from "../assets/images/NGN.png";
+import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useFirebase } from "../context/FirebaseContext";
 
 const MobileAccDetails = () => {
+  const navigate = useNavigate();
+  const { user, profile, loading, updateUserProfile, refreshProfile } = useFirebase();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    landmark: "",
+    houseNo: "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Redirect if unauthenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [loading, user, navigate]);
+
+  // Populate form once profile loads
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name || "",
+        email: profile.email || "",
+        phone: profile.phoneNumber || "",
+        address: profile.address as string || "",
+        landmark: profile.landmark as string || "",
+        houseNo: profile.houseNo as string || "",
+      });
+    }
+  }, [profile]);
+
+  // Auto-dismiss messages
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (error) setError(null);
+      if (success) setSuccess(null);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [error, success]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSave = async () => {
+    if (!profile) return;
+    setSaving(true);
+    setSuccess(null);
+    setError(null);
+    
+    try {
+      await updateUserProfile({
+        name: formData.name,
+        email: formData.email,
+        phoneNumber: formData.phone,
+        address: formData.address,
+        landmark: formData.landmark,
+        houseNo: formData.houseNo,
+      });
+
+      // Force refresh the profile data in the context
+      await refreshProfile();
+
+      setSuccess("Profile updated successfully!");
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Update failed", err);
+      setError("Failed to update profile. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    setSuccess(null);
+    setError(null);
+  };
+
+  if (loading || !profile) {
+    return <div className="text-center py-10 lg:hidden">Loading your account...</div>;
+  }
+
   return (
     <section className='lg:hidden'>
       <div className="mt-[-20px] mb-10 flex justify-center gap-2 text-sm bg-gray-200 py-1 relative">
         <Link to={"/"}><span className="">Home</span></Link>
          &gt; 
-         <span className="">My Account</span>
+         <Link to={"/account"}><span className="">My Account</span></Link>
       </div>
 
-    <div className="flex flex-col items-center justify-center bg-white lg:px-4 mt-[-30px]">
-      <div className="mt-8 w-full max-w-md px-4">
-        {/* Name */}
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-800 mb-1">
-            Name
-          </label>
-          <input
-            type="name"
-            id="name"
-            placeholder="Enter full name"
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2  placeholder-gray-400 text-gray-900"
-          />
+      {/* Success and Error Messages */}
+      {success && (
+        <div className="fixed top-20 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
+          {success}
         </div>
-
-        {/* Email */}
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-1">
-            Email Address
-          </label>
-          <input
-            type="email"
-            id="email"
-            placeholder="Enter email address"
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2  placeholder-gray-400 text-gray-900"
-          />
+      )}
+      {error && (
+        <div className="fixed top-20 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
+          {error}
         </div>
+      )}
 
-        {/* Phone Number */}
-        <div className="mb-4">
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-800 mb-1">
-            Phone number
-          </label>
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center">
-              <img
-                src={NGN}
-                alt="Nigeria flag"
-                className="w-5 h-5 mr-1"
-              />
-              <input type="tel" placeholder="+234" className="px-3 py-3 border border-gray-300 rounded-md text-gray-700 text-sm font-medium w-15"/>
-            </div>
+      <div className="flex flex-col items-center justify-center bg-white lg:px-4 mt-[-30px]">
+        <div className="mt-8 w-full max-w-md px-4">
+          {/* Name */}
+          <div className="mb-4">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-800 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={formData.name}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 text-gray-900 ${
+                !isEditing ? 'bg-gray-100' : ''
+              }`}
+            />
+          </div>
+
+          {/* Email */}
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={true}
+              className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 text-gray-900 bg-gray-100"
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="mb-4">
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-800 mb-1">
+              Phone number
+            </label>
             <input
               type="tel"
               id="phone"
-              className="flex-1 px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2  placeholder-gray-400 text-gray-900"
+              value={formData.phone}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 text-gray-900 ${
+                !isEditing ? 'bg-gray-100' : ''
+              }`}
             />
           </div>
+
+          {/* Address */}
+          <div className="mb-4">
+            <label htmlFor="address" className="block text-sm font-medium text-gray-800 mb-1">
+              Address
+            </label>
+            <textarea
+              rows={3}
+              id="address"
+              style={{ resize: "none" }}
+              value={formData.address}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 text-gray-900 ${
+                !isEditing ? 'bg-gray-100' : ''
+              }`}
+            />
+          </div>
+
+          {/* Landmark */}
+          <div className="mb-4">
+            <label htmlFor="landmark" className="block text-sm font-medium text-gray-800 mb-1">
+              Landmark
+            </label>
+            <input
+              type="text"
+              id="landmark"
+              value={formData.landmark}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 text-gray-900 ${
+                !isEditing ? 'bg-gray-100' : ''
+              }`}
+            />
+          </div>
+
+          {/* House No */}
+          <div className="mb-6">
+            <label htmlFor="houseNo" className="block text-sm font-medium text-gray-800 mb-1">
+              House No
+            </label>
+            <input
+              type="text"
+              id="houseNo"
+              value={formData.houseNo}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 text-gray-900 ${
+                !isEditing ? 'bg-gray-100' : ''
+              }`}
+            />
+          </div>
+
+          {isEditing ? (
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full bg-red-700 hover:bg-red-800 text-white text-lg font-semibold py-3 rounded-lg transition disabled:opacity-50 mb-4"
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+          ) : (
+            <button
+              onClick={handleEditToggle}
+              className="w-full bg-red-700 hover:bg-red-800 text-white text-lg font-semibold py-3 rounded-lg transition mb-4"
+            >
+              Edit Profile
+            </button>
+          )}
         </div>
-
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-800 mb-1">
-            Address
-          </label>
-          <input
-            type="text"
-            id="address"
-            placeholder="Enter full address"
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2  placeholder-gray-400 text-gray-900"
-          />
-        </div>
-
-
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-1">
-            Landmark
-          </label>
-          <input
-            type="text"
-            id="address"
-            placeholder="Enter full address"
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2  placeholder-gray-400 text-gray-900"
-          />
-        </div>
-
-        <div className="mb-15">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-1">
-            House No
-          </label>
-          <input
-            type="text"
-            id="address"
-            placeholder="Enter full address"
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2  placeholder-gray-400 text-gray-900"
-          />
-        </div>
-
-        <button className="w-full bg-red-700 hover:bg-red-800 text-white text-lg font-semibold py-3 rounded-lg transition cursor-pointer">
-          Save
-        </button>
-
       </div>
-    </div>
     </section>
-  )
-}
+  );
+};
 
-export default MobileAccDetails
+export default MobileAccDetails;

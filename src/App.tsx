@@ -21,6 +21,7 @@ import Register from './pages/Register';
 import MobileAccount from './pages/MobileAccount';
 import MobileAccDetails from './pages/MobileAccDetails';
 import MyAccount from './pages/MyAccount';
+// import OrderHistory from './pages/OrderHistory';
 
 function App() {
 
@@ -54,6 +55,7 @@ function App() {
           <Route path="/signup" element={<Register />} />
           <Route path="/account" element={isMobile ? <MobileAccount /> : <MyAccount />} />
           <Route path="/my-details" element={<MobileAccDetails />} />
+          {/* <Route path="/order-history" element={<OrderHistory />} /> */}
           {/* <Route path="/sales" element={<Sales />} />
           <Route path="/best-seller" element={<BestSeller />} />
           <Route path="/new-in" element={<NewIn />} />

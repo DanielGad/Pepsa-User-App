@@ -1,11 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import Footer from "../components/Footer";
 import { FaTrashAlt } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Discount from "../assets/images/discount.png"
+import { useFirebase } from "../context/FirebaseContext";
 
 const MobileCheckout = () => {
+  const navigate = useNavigate();
+  const { user } = useFirebase();
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
 
   const Delivery = ["Vendor Delivery", "Self Pickup", "Pepsa Dispatch"];
@@ -32,6 +35,12 @@ const MobileCheckout = () => {
 
   // Total
   const total = subtotal - discount + vat + serviceFee + deliveryFee;
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   return (
     <>
