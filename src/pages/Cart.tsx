@@ -1,16 +1,58 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import Footer from "../components/Footer";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaSpinner, FaTrashAlt } from "react-icons/fa";
+import { useState } from "react";
 
-const Cart = () => {
+const Cart: React.FC = () => {
+  const navigate = useNavigate();
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
+  const [ confirming, setConfirming ] = useState(false)
+
+  // Handler for Confirm Order
+  const handleConfirm = async () => {
+    setConfirming(true)
+    // 1) Must be logged in
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      // 2) Fetch user profile
+      const res = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch user profile");
+      const user = await res.json();
+
+      // 3) Check required address fields
+      const { address, landmark, houseNo } = user;
+      if (!address || !landmark || !houseNo) {
+        // Redirect to account page to fill details
+        navigate("/delivery-request");
+        return;
+      }
+
+      // 4) All good: go to checkout
+      navigate("/checkout");
+    } catch (err) {
+      console.error("Error during confirmation check:", err);
+      // Fallback to login if something goes wrong
+      navigate("/login");
+    } finally {
+      setConfirming(false)
+    }
+  };
 
   return (
     <>
       <div className="p-4 md:p-6 md:mx-20">
         <div className="flex flex-col md:flex-row items-center justify-between mb-4 px-2 md:px-5">
-          <h1 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Cart Items</h1>
+          <h1 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">
+            Cart Items
+          </h1>
           <button
             onClick={() => clearCart()}
             className="text-white font-medium cursor-pointer bg-red-600 px-4 py-2 rounded-2xl hover:bg-red-800 transition transform active:scale-90"
@@ -36,11 +78,17 @@ const Cart = () => {
                   {item.quantity}× {item.product.name}
                 </p>
                 {item.selectedVariation && (
-                  <p className="text-sm text-gray-500">{item.selectedVariation.color} color</p>
+                  <p className="text-sm text-gray-500">
+                    {item.selectedVariation.color} color
+                  </p>
                 )}
                 <p className="text-gray-800 mt-1 text-sm">
                   (₦
-                  {(item.product.Variation?.find(v => v.color === item.selectedVariation?.color)?.price ?? item.product.price).toLocaleString()}
+                  {(
+                    item.product.Variation?.find(
+                      (v) => v.color === item.selectedVariation?.color
+                    )?.price ?? item.product.price
+                  ).toLocaleString()}
                   )
                 </p>
               </div>
@@ -49,7 +97,9 @@ const Cart = () => {
                 ₦
                 {(
                   item.quantity *
-                  (item.product.Variation?.find(v => v.color === item.selectedVariation?.color)?.price ?? item.product.price)
+                  (item.product.Variation?.find(
+                    (v) => v.color === item.selectedVariation?.color
+                  )?.price ?? item.product.price)
                 ).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -58,14 +108,26 @@ const Cart = () => {
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => updateQuantity(item.product.id, -1, item.selectedVariation)}
+                  onClick={() =>
+                    updateQuantity(
+                      item.product.id,
+                      -1,
+                      item.selectedVariation
+                    )
+                  }
                   className="border cursor-pointer border-red-600 px-2 rounded text-red-600 hover:bg-red-50"
                 >
                   -
                 </button>
                 <span>{item.quantity}</span>
                 <button
-                  onClick={() => updateQuantity(item.product.id, 1, item.selectedVariation)}
+                  onClick={() =>
+                    updateQuantity(
+                      item.product.id,
+                      1,
+                      item.selectedVariation
+                    )
+                  }
                   className="border cursor-pointer border-red-600 px-2 rounded text-red-600 hover:bg-red-50"
                 >
                   +
@@ -73,7 +135,9 @@ const Cart = () => {
               </div>
 
               <button
-                onClick={() => removeFromCart(item.product.id, item.selectedVariation)}
+                onClick={() =>
+                  removeFromCart(item.product.id, item.selectedVariation)
+                }
                 className="flex items-center gap-2 text-red-600 border border-red-600 px-4 py-2 rounded-md cursor-pointer hover:text-red-800 transition-all"
               >
                 <FaTrashAlt />
@@ -90,11 +154,14 @@ const Cart = () => {
                 Add Items
               </button>
             </Link>
-            <Link to="/checkout">
-            <button className="bg-red-700 text-white px-8 py-3 rounded cursor-pointer hover:bg-red-800 transition transform active:scale-90">
-              Confirm Order
+            <button
+              onClick={handleConfirm}
+              disabled={confirming}
+              className="flex justify-center items-center bg-red-700 text-white px-8 py-3 rounded cursor-pointer hover:bg-red-800 transition transform active:scale-90"
+            >
+              {confirming && <FaSpinner className="animate-spin mr-2" />}
+              {confirming ? "Processing..." : "Confirm Order"}
             </button>
-            </Link>
           </div>
         ) : (
           <div className="mt-10 text-center">
@@ -106,7 +173,6 @@ const Cart = () => {
             </Link>
           </div>
         )}
-
       </div>
 
       <Footer />

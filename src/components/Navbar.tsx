@@ -16,6 +16,13 @@ const Navbar = () => {
 
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
+      const userId = localStorage.getItem("userId");
+      
+      const authLink = userId
+  ? { label: 'My Account', path: '/account' }
+  : { label: 'Login', path: '/login' };
+
+
 
   return (
     <nav className="w-full flex items-center justify-between px-4 lg:px-20 py-4 bg-white fixed top-0 left-0 z-50 border border-bottom-2 border-gray-400">
@@ -86,7 +93,7 @@ const Navbar = () => {
             { label: 'Sales', path: '/sales' },
             { label: 'Best Seller', path: '/best-seller' },
             { label: 'New In', path: '/new-in' },
-            { label: 'Login', path: '/login' }, // Added Login
+            authLink
           ].map((item) => (
             <Link
               to={item.path}

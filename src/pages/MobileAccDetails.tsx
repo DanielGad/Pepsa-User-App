@@ -1,10 +1,19 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import { useFirebase } from "../context/FirebaseContext";
+import { ClipLoader } from "react-spinners";
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  landmark: string;
+  houseNo: string;
+}
 
 const MobileAccDetails = () => {
   const navigate = useNavigate();
-  const { user, profile, loading, updateUserProfile, refreshProfile } = useFirebase();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,31 +22,52 @@ const MobileAccDetails = () => {
     landmark: "",
     houseNo: "",
   });
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Redirect if unauthenticated
+  // Check authentication and fetch profile
   useEffect(() => {
-    if (!loading && !user) {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
       navigate("/login");
+      return;
     }
-  }, [loading, user, navigate]);
 
-  // Populate form once profile loads
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        name: profile.name || "",
-        email: profile.email || "",
-        phone: profile.phoneNumber || "",
-        address: profile.address as string || "",
-        landmark: profile.landmark as string || "",
-        houseNo: profile.houseNo as string || "",
-      });
-    }
-  }, [profile]);
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
+        );
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch user profile");
+        }
+        
+        const userData = await response.json();
+        setUser(userData);
+        setFormData({
+          name: userData.name || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+          address: userData.address || "",
+          landmark: userData.landmark || "",
+          houseNo: userData.houseNo || "",
+        });
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+        setError("Failed to load user profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [navigate]);
 
   // Auto-dismiss messages
   useEffect(() => {
@@ -54,24 +84,36 @@ const MobileAccDetails = () => {
   };
 
   const handleSave = async () => {
-    if (!profile) return;
+    if (!user) return;
     setSaving(true);
     setSuccess(null);
     setError(null);
     
     try {
-      await updateUserProfile({
-        name: formData.name,
-        email: formData.email,
-        phoneNumber: formData.phone,
-        address: formData.address,
-        landmark: formData.landmark,
-        houseNo: formData.houseNo,
-      });
+      const response = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${user.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            address: formData.address,
+            landmark: formData.landmark,
+            houseNo: formData.houseNo,
+          }),
+        }
+      );
 
-      // Force refresh the profile data in the context
-      await refreshProfile();
+      if (!response.ok) {
+        throw new Error("Failed to update profile");
+      }
 
+      const updatedUser = await response.json();
+      setUser(updatedUser);
       setSuccess("Profile updated successfully!");
       setIsEditing(false);
     } catch (err) {
@@ -88,8 +130,29 @@ const MobileAccDetails = () => {
     setError(null);
   };
 
-  if (loading || !profile) {
-    return <div className="text-center py-10 lg:hidden">Loading your account...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ClipLoader size={40} color="#E53E3E" />
+        <div className="ml-3 text-[#E53E3E]">Please Wait...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center py-10 lg:hidden">
+        <p className="text-red-600 mb-4">
+          {error || "Failed to load profile data"}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          Try Again
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -156,10 +219,8 @@ const MobileAccDetails = () => {
               id="phone"
               value={formData.phone}
               onChange={handleChange}
-              disabled={!isEditing}
-              className={`w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 text-gray-900 ${
-                !isEditing ? 'bg-gray-100' : ''
-              }`}
+              disabled={true}
+              className={`w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 text-gray-900 bg-gray-100`}
             />
           </div>
 

@@ -1,22 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
-import { useFirebase } from "../context/FirebaseContext";
-import { db } from "../firebase";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  // addDoc,
-  // serverTimestamp,
-} from "firebase/firestore";
-import { FirebaseError } from "firebase/app";
 import { FaSpinner, FaCheck, FaTimes } from "react-icons/fa";
+import bcrypt from "bcryptjs";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { register } = useFirebase();
 
   // Country options with code, countryCode (ISO 3166-1 alpha-2), and name
   const countryOptions = [
@@ -44,139 +33,139 @@ const Register: React.FC = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  
-  // Password validation states
+  const [loading, setLoading] = useState(false);
+
   const [passwordErrors, setPasswordErrors] = useState({
-    // hasUpperCase: false,
-    // hasNumber: false,
     hasMinLength: false,
   });
 
-  // Get current country details
-  const currentCountry = countryOptions.find(opt => opt.code === countryCode) || countryOptions[2];
-
-  // Check password requirements
+  // Validate password length
   useEffect(() => {
-    setPasswordErrors({
-      // hasUpperCase: /[A-Z]/.test(password),
-      // hasNumber: /\d/.test(password),
-      hasMinLength: password.length >= 6,
-    });
+    setPasswordErrors({ hasMinLength: password.length >= 6 });
   }, [password]);
 
-  // Auto-dismiss messages after 3 seconds
+  // Auto-dismiss
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (error) setError(null);
-      if (success) setSuccess(null);
-    }, 3000);
-
-    return () => clearTimeout(timer);
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
   }, [error, success]);
 
-  const checkExisting = async (emailToCheck: string, phoneToCheck: string) => {
-    const identifiersRef = collection(db, "authIdentifiers");
-  
-    const q = query(
-      identifiersRef,
-      where("value", "in", [emailToCheck, `${countryCode}${phoneToCheck}`])
-    );
-  
-    const snap = await getDocs(q);
-    snap.forEach((doc) => {
-      const data = doc.data();
-      if (data.type === "email") {
-        throw new Error("An account with this email already exists.");
-      }
-      if (data.type === "phone") {
-        throw new Error("An account with this phone number already exists.");
-      }
-    });
+  const generateUserId = () => Math.random().toString(36).substring(2, 12);
+  const hashPassword = async (pw: string) => {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(pw, salt);
   };
-  
-  // ✅ UPDATED handleSubmit: use addDoc to store email/phone
+
+  /** Fetches all users once and checks */
+  const checkExisting = async (
+    emailToCheck: string,
+    phoneToCheck: string
+  ): Promise<"email" | "phone" | null> => {
+    const res = await fetch(
+      "https://680ead7467c5abddd192c3df.mockapi.io/api/users"
+    );
+    if (!res.ok) throw new Error("Failed to validate uniqueness");
+    const users: Array<{ email: string; phone: string }> = await res.json();
+
+    // case-insensitive email match
+    if (users.some(u => u.email.toLowerCase() === emailToCheck.toLowerCase())) {
+      return "email";
+    }
+
+    // strip plus from country code
+    const strippedCode = countryCode.replace("+", "");
+    const fullPhone = strippedCode + phoneToCheck;
+    if (users.some(u => u.phone === fullPhone)) {
+      return "phone";
+    }
+
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-  
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-  
-    if (
-      // !passwordErrors.hasUpperCase ||
-      // !passwordErrors.hasNumber ||
-      !passwordErrors.hasMinLength
-    ) {
-      setError(
-        "Password must contain an uppercase letter, a number, and be at least 6 characters."
-      );
+    if (!passwordErrors.hasMinLength) {
+      setError("Password must be at least 6 characters.");
       return;
     }
-  
+
     setLoading(true);
     try {
-      await checkExisting(email, phone);
-  
-      const phoneNumber = `${countryCode}${phone}`;
-      await register({ email, phoneNumber, name, password });
-  
+      const exists = await checkExisting(email, phone);
+      if (exists === "email") {
+        setError("An account with this email already exists.");
+        return;
+      }
+      if (exists === "phone") {
+        setError("An account with this phone number already exists.");
+        return;
+      }
+
+      const hashed = await hashPassword(password);
+      const newUser = {
+        userId: generateUserId(),
+        name,
+        email,
+        phone: countryCode.replace("+", "") + phone,
+        password: hashed,
+        createdAt: new Date().toISOString(),
+        orders: [],
+      };
+
+      const postRes = await fetch(
+        "https://680ead7467c5abddd192c3df.mockapi.io/api/users",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newUser),
+        }
+      );
+      if (!postRes.ok) throw new Error("Registration failed");
+
       setSuccess("Registration successful!");
       setTimeout(() => navigate("/account"), 1500);
     } catch (err: unknown) {
-      let message = "Registration failed. Please try again.";
-  
-      if (err instanceof FirebaseError) {
-        switch (err.code) {
-          case "auth/invalid-email":
-            message = "Please enter a valid email address.";
-            break;
-          case "auth/weak-password":
-            message =
-              "Password should be at least 6 characters with an uppercase letter and number.";
-            break;
-          case "auth/email-already-in-use":
-            message = "This email is already in use.";
-            break;
-          default:
-            message = err.message;
-        }
-      } else if (err instanceof Error) {
-        message = err.message;
-      }
-  
-      setError(message);
+      console.error(err);
+      setError((err as Error).message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  const currentCountry =
+    countryOptions.find(o => o.code === countryCode) || countryOptions[0];
+
   return (
-    <div className="flex flex-col items-center justify-center bg-white md:px-4 mt-[-30px] relative">
-      {/* Success Message */}
+    <div className="relative flex flex-col items-center justify-center bg-white md:px-4 mt-[-30px]">
+      {/* Messages */}
       {success && (
-        <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50 flex items-center gap-2">
-          <FaSpinner className="animate-spin" />
-          {success}
+        <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded flex items-center gap-2 z-50">
+          <FaCheck /> {success}
         </div>
       )}
-
-      {/* Error Message */}
       {error && (
-        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 flex items-center gap-2">
-          <FaSpinner className="animate-spin" />
-          {error}
+        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center gap-2 z-50">
+          <FaTimes /> {error}
         </div>
       )}
 
-      {/* Header */}
       <div className="bg-red-100 w-full text-center py-6 md:max-w-md">
-        <h1 className="text-2xl font-semibold text-black">Diadem Luxury</h1>
+        <h1 className="text-2xl font-semibold">Diadem Luxury</h1>
         <p className="text-sm">Powered By Pepsa.co</p>
       </div>
 
@@ -185,135 +174,105 @@ const Register: React.FC = () => {
 
         {/* Name */}
         <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-800 mb-1">
-            Name
-          </label>
+          <label className="block text-sm font-medium mb-1">Name</label>
           <input
-            type="text"
-            id="name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter full name"
+            onChange={e => setName(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400 text-gray-900"
+            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:ring-red-500"
+            placeholder="Full name"
           />
         </div>
 
         {/* Email */}
         <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-1">
-            Email
-          </label>
+          <label className="block text-sm font-medium mb-1">Email</label>
           <input
             type="email"
-            id="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="johndoe@gmail.com"
+            onChange={e => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400 text-gray-900"
+            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:ring-red-500"
+            placeholder="you@example.com"
           />
         </div>
 
-        {/* Phone Number */}
+        {/* Phone */}
         <div className="mb-4">
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-800 mb-1">
-            Phone number
-          </label>
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center border border-gray-300 rounded-md">
-              <div className="flex items-center px-2">
-                <ReactCountryFlag 
-                  countryCode={currentCountry.countryCode}
-                  svg
-                  style={{
-                    width: '20px',
-                    height: '15px',
-                    marginRight: '8px',
-                  }}
-                  title={currentCountry.name}
-                />
-                <select
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  className="py-3 text-gray-700 text-sm font-medium focus:outline-none"
-                >
-                  {countryOptions.map((option) => (
-                    <option key={option.code} value={option.code}>
-                      {option.code}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+          <label className="block text-sm font-medium mb-1">Phone number</label>
+          <div className="flex items-center gap-2">
+            <ReactCountryFlag
+              countryCode={currentCountry.countryCode}
+              svg
+              style={{ width: "20px", height: "15px" }}
+            />
+            <select
+              value={countryCode}
+              onChange={e => setCountryCode(e.target.value)}
+              className="py-3 border border-gray-300 rounded-md"
+            >
+              {countryOptions.map(opt => (
+                <option key={opt.code} value={opt.code}>
+                  {opt.code}
+                </option>
+              ))}
+            </select>
             <input
               type="tel"
-              id="phone"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="8012345678"
+              onChange={e => setPhone(e.target.value)}
               required
-              className="flex-1 px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400 text-gray-900"
+              className="flex-1 px-4 py-3 rounded-md border border-gray-300 focus:ring-red-500"
+              placeholder="8012345678"
             />
           </div>
         </div>
 
         {/* Password */}
         <div className="mb-2">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-800 mb-1">
-            Password
-          </label>
+          <label className="block text-sm font-medium mb-1">Password</label>
           <input
             type="password"
-            id="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="*********************"
+            onChange={e => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400 text-gray-900"
+            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:ring-red-500"
+            placeholder="••••••••"
           />
-          <div className="mt-2 text-sm text-gray-600">
-            {/* <div className={`flex items-center ${passwordErrors.hasUpperCase ? 'text-green-600' : 'text-gray-400'}`}>
-              {passwordErrors.hasUpperCase ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
-              At least one uppercase letter
-            </div>
-            <div className={`flex items-center ${passwordErrors.hasNumber ? 'text-green-600' : 'text-gray-400'}`}>
-              {passwordErrors.hasNumber ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
-              At least one number
-            </div> */}
-            <div className={`flex items-center ${passwordErrors.hasMinLength ? 'text-green-600' : 'text-gray-400'}`}>
-              {passwordErrors.hasMinLength ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
-              At least 6 characters
+          <div className="mt-2 text-sm">
+            <div
+              className={`flex items-center ${
+                passwordErrors.hasMinLength ? "text-green-600" : "text-gray-400"
+              }`}
+            >
+              {passwordErrors.hasMinLength ? <FaCheck /> : <FaTimes />} At least 6 characters
             </div>
           </div>
         </div>
 
         {/* Confirm Password */}
         <div className="mb-6">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-800 mb-1">
-            Confirm Password
-          </label>
+          <label className="block text-sm font-medium mb-1">Confirm Password</label>
           <input
             type="password"
-            id="confirmPassword"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="*********************"
+            onChange={e => setConfirmPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400 text-gray-900"
+            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:ring-red-500"
+            placeholder="••••••••"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-red-700 hover:bg-red-800 text-white text-lg font-semibold py-3 rounded-lg transition cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full bg-red-700 hover:bg-red-800 text-white py-3 rounded-lg font-semibold flex justify-center items-center gap-2 disabled:opacity-50"
         >
           {loading && <FaSpinner className="animate-spin" />}
           {loading ? "Signing up..." : "Sign up"}
         </button>
 
-        <p className="mt-6 text-center text-sm text-gray-700 mb-10">
+        <p className="mt-6 text-center text-sm text-gray-700">
           Already have an account?{" "}
           <Link to="/login" className="text-red-600 hover:underline">
             Login

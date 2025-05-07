@@ -2,14 +2,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import Footer from "../components/Footer";
 import { FaTrashAlt } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Discount from "../assets/images/discount.png"
-import { useFirebase } from "../context/FirebaseContext";
 
 const MobileCheckout = () => {
   const navigate = useNavigate();
-  const { user } = useFirebase();
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const Delivery = ["Vendor Delivery", "Self Pickup", "Pepsa Dispatch"];
   const Fee = ["₦6,000.00", "₦0.00", "₦5,000.00"];
@@ -36,11 +37,77 @@ const MobileCheckout = () => {
   // Total
   const total = subtotal - discount + vat + serviceFee + deliveryFee;
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
+  const handlePlaceOrder = async () => {
+    try {
+      setLoading(true);
+      setMessage("");
+  
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        navigate("/login");
+        return;
+      }
+
+      const generateOrderId = () => Math.floor(10000000 + Math.random() * 90000000);
+
+
+  
+      const order = {
+        orderId: generateOrderId(),
+        deliveryMethod: selectedDelivery,
+        deliveryFee,
+        discount,
+        serviceFee,
+        vat,
+        subtotal,
+        total,
+        items: cartItems.map(item => {
+          const unitPrice =
+            item.product.Variation?.find(v => v.color === item.selectedVariation?.color)?.price ??
+            item.product.price ?? 0;
+  
+          return {
+            productId: item.product.id,
+            name: item.product.name,
+            quantity: item.quantity,
+            selectedVariation: item.selectedVariation,
+            unitPrice,
+            image: item.product.image?.[0] ?? "",
+          };
+        }),
+        createdAt: new Date().toISOString(),
+      };
+  
+      const userResponse = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
+      );
+  
+      if (!userResponse.ok) throw new Error("User not found");
+  
+      const userData = await userResponse.json();
+      const updatedOrders = [...(userData.orders || []), order];
+  
+      const updateResponse = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`,
+        {
+          method: "PUT", // Or PATCH if you prefer partial update
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...userData, orders: updatedOrders }),
+        }
+      );
+  
+      if (!updateResponse.ok) throw new Error("Failed to update user with new order");
+  
+      clearCart();
+      setMessage("Order placed successfully! Redirecting...");
+      setTimeout(() => navigate("/order-history"), 2000);
+    } catch (error) {
+      console.error("Failed to place order:", error);
+      setMessage("There was an error placing your order.");
+    } finally {
+      setLoading(false);
     }
-  }, [user, navigate]);
+  };
 
   return (
     <>
@@ -178,12 +245,14 @@ const MobileCheckout = () => {
           </div>
           <div className="flex flex-col justify-center items-center">
               <Link to="/">
-                <button className="mx-auto py-3 px-30 mt-10 rounded cursor-pointer bg-red-600 text-white font-semibold hover:bg-red-800 transition transform active:scale-90">
+                <button className="mx-auto py-3 px-30 mt-10 rounded cursor-pointer bg-red-600 text-white font-semibold hover:bg-red-800 transition transform active:scale-90" onClick={handlePlaceOrder}>
+                  {loading ? "Placing Order..." : message || "Place Order"}
                   Place Order
                 </button>
               </Link>
               <Link to="/">
-                <button className="mx-auto py-3 px-10 mt-5 rounded cursor-pointer  text-black font-semibold hover:bg-gray-300 transition transform active:scale-90">
+                <button className="mx-auto py-3 px-10 mt-5 rounded cursor-pointer  text-black font-semibold hover:bg-gray-300 transition transform active:scale-90" onClick={() => navigate("/")}>
+                  {loading ? "Processing..." : message || "Request for Quotation"}
                   Request for Quotation
                 </button>
               </Link>

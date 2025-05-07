@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
-import {
-  getAuth,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  updatePassword,
-} from "firebase/auth";
-import { FirebaseError } from "firebase/app";
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
+import bcrypt from "bcryptjs";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
+  currentHashedPassword: string;
+  onChangePassword: (newHashedPassword: string) => Promise<void>;
 }
 
-const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
+const ChangePasswordModal = ({ 
+  isOpen, 
+  onClose, 
+  // userId,
+  currentHashedPassword,
+  onChangePassword 
+}: ChangePasswordModalProps) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -35,15 +37,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
     setSuccess(null);
     setLoading(true);
 
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if (!user) {
-      setError("User not authenticated.");
-      setLoading(false);
-      return;
-    }
-
+    // Validate inputs
     if (!currentPassword || !newPassword || !confirmPassword) {
       setError("All fields are required.");
       setLoading(false);
@@ -56,13 +50,27 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
       return;
     }
 
+    if (newPassword.length < 6) {
+      setError("Password must be at least 6 characters.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const credential = EmailAuthProvider.credential(
-        user.email || "",
-        currentPassword
-      );
-      await reauthenticateWithCredential(user, credential);
-      await updatePassword(user, newPassword);
+      // Verify current password
+      const isMatch = await bcrypt.compare(currentPassword, currentHashedPassword);
+      if (!isMatch) {
+        setError("The current password is incorrect.");
+        setLoading(false);
+        return;
+      }
+
+      // Hash the new password
+      const salt = await bcrypt.genSalt(10);
+      const newHashedPassword = await bcrypt.hash(newPassword, salt);
+
+      // Call the parent component's password change handler
+      await onChangePassword(newHashedPassword);
 
       setSuccess("Password updated successfully.");
       setCurrentPassword("");
@@ -73,26 +81,8 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
         onClose();
       }, 1500);
     } catch (error) {
-      if (error instanceof FirebaseError) {
-        switch (error.code) {
-          case "auth/wrong-password":
-            setError("The current password is incorrect.");
-            break;
-          case "auth/weak-password":
-            setError("New password is too weak (min 6 characters).");
-            break;
-          case "auth/requires-recent-login":
-            setError("Please re-authenticate and try again.");
-            break;
-          case "auth/invalid-credential":
-            setError("The Current Password is Incorrect.");
-            break;
-          default:
-            setError(error.message);
-        }
-      } else {
-        setError("An unexpected error occurred.");
-      }
+      console.error("Password change error:", error);
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -105,7 +95,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
       <div className="relative bg-white rounded-lg w-[90%] max-w-md p-6 pt-15 shadow-2xl">
         {/* Close Button */}
         <button
-          onClick={ () => {
+          onClick={() => {
             onClose();
             setCurrentPassword("");
             setNewPassword("");
@@ -123,17 +113,17 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
 
         {/* Success or Error Message */}
         {error && (
-                <div className="fixed top-20 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 flex items-center gap-2 shadow-md">
-                  <FaExclamationCircle />
-                  {error}
-                </div>
-            )}
-          {success && (
-                <div className="fixed top-20 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50 flex items-center gap-2 shadow-md">
-                  <FaCheckCircle />
-                  {success}
-                </div>
-          )}
+          <div className="fixed top-20 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 flex items-center gap-2 shadow-md">
+            <FaExclamationCircle />
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="fixed top-20 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50 flex items-center gap-2 shadow-md">
+            <FaCheckCircle />
+            {success}
+          </div>
+        )}
 
         {/* Current Password */}
         <div className="mb-4">

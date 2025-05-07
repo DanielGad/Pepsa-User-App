@@ -6,24 +6,121 @@ import ChangePasswordIcon from "../assets/images/change-password.png";
 import Footer from "../components/Footer";
 import ChangePasswordModal from "../components/ChangePassword";
 import { useState, useEffect } from "react";
-import { useFirebase } from "../context/FirebaseContext";
+import { ClipLoader } from "react-spinners";
+// import { useCart } from "../components/CartContext";
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  landmark: string;
+  houseNo: string;
+  password?: string;
+}
 
 const MobileAccount: React.FC = () => {
   const navigate = useNavigate();
-  const { user, profile, logout } = useFirebase();
+  // const {clearCart} = useCart();
   const [openModal, setOpenModal] = useState(false);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [currentHashedPassword, setCurrentHashedPassword] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Redirect to login if unauthenticated
+  // Check if user is logged in and fetch profile
   useEffect(() => {
-    if (!user) {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
       navigate("/login");
+      return;
     }
-  }, [user, navigate]);
 
-  const handleLogout = async () => {
-    await logout();
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
+        );
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch user profile");
+        }
+        
+        const userData = await response.json();
+        setUser(userData);
+        setCurrentHashedPassword(userData.password || "");
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+        setError("Failed to load user profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [navigate]);
+
+  const handlePasswordChange = async (newHashedPassword: string) => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${user.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...user,
+            password: newHashedPassword,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update password");
+      }
+
+      setCurrentHashedPassword(newHashedPassword);
+    } catch (err) {
+      console.error("Password update failed", err);
+      throw err;
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    // clearCart();
     navigate("/login");
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ClipLoader size={40} color="#E53E3E" />
+        <div className="ml-3 text-[#E53E3E]">Please Wait...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center py-10">
+        <p className="text-red-600 mb-4">
+          {error || "Check your internet connection and try again"}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="lg:hidden">
@@ -35,7 +132,7 @@ const MobileAccount: React.FC = () => {
       {/* Welcome */}
       <div className="text-center mb-6">
         <h2 className="text-lg font-semibold">
-          Welcome{profile?.name ? `, ${profile.name}` : '!'}
+          Welcome{user?.name ? `, ${user.name}` : '!'}
         </h2>
       </div>
 
@@ -74,7 +171,13 @@ const MobileAccount: React.FC = () => {
             </div>
             <span>&gt;</span>
           </div>
-          <ChangePasswordModal isOpen={openModal} onClose={() => setOpenModal(false)} />
+          
+          <ChangePasswordModal 
+            isOpen={openModal} 
+            onClose={() => setOpenModal(false)}
+            currentHashedPassword={currentHashedPassword}
+            onChangePassword={handlePasswordChange}
+          />
 
           {/* Logout */}
           <div

@@ -1,10 +1,50 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import Footer from "../components/Footer";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaSpinner, FaTrashAlt } from "react-icons/fa";
+import { useState } from "react";
 
 const MobileCart = () => {
+  const navigate = useNavigate();
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
+  const [confirming, setConfirming] = useState(false);
+
+
+  const handleConfirm = async () => {
+    setConfirming(true)
+    // 1) Must be logged in
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      // 2) Fetch user profile
+      const res = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch user profile");
+      const user = await res.json();
+
+      // 3) Check required address fields
+      const { address, landmark, houseNo } = user;
+      if (!address || !landmark || !houseNo) {
+        // Redirect to account page to fill details
+        navigate("/delivery-request");
+        return;
+      }
+
+      // 4) All good: go to checkout
+      navigate("/checkout");
+    } catch (err) {
+      console.error("Error during confirmation check:", err);
+      // Fallback to login if something goes wrong
+      navigate("/login");
+    } finally {
+      setConfirming(false)
+    }
+  };
 
   return (
     <>
@@ -93,11 +133,12 @@ const MobileCart = () => {
                 Add Items
               </button>
             </Link>
-            <Link to="/checkout">
-            <button className="bg-red-700 text-white w-full px-8 py-3 rounded cursor-pointer hover:bg-red-800 transition transform active:scale-90">
-              Confirm Order
+            <button className= "flex justify-center items-center bg-red-700 text-white w-full px-8 py-3 rounded cursor-pointer hover:bg-red-800 transition transform active:scale-90"
+            onClick={handleConfirm}
+            disabled={confirming}>
+              {confirming && <FaSpinner className="animate-spin mr-2" />}
+              {confirming ? "Processing..." : "Confirm Order"}
             </button>
-            </Link>
           </div>
         ) : (
           <div className="mt-10 text-center">
