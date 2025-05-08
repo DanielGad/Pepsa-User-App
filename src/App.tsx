@@ -23,6 +23,7 @@ import MobileAccDetails from './pages/MobileAccDetails';
 import MyAccount from './pages/MyAccount';
 import OrderHistory from './pages/OrderHistory';
 import OrderDetails from './pages/OrderDetails';
+import Invoice from './pages/Invoice';
 // import OrderHistory from './pages/OrderHistory';
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
           <Route path="/my-details" element={<MobileAccDetails />} />
           <Route path="/order-history" element={<OrderHistory />} />
           <Route path="/order-details/:orderIndex" element={<OrderDetails />} />
+          <Route path="/invoice/:orderIndex" element={<Invoice />} />
           {/* <Route path="/sales" element={<Sales />} />
           <Route path="/best-seller" element={<BestSeller />} />
           <Route path="/new-in" element={<NewIn />} />

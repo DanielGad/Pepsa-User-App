@@ -13,7 +13,8 @@ const Checkout = () => {
   const Fee = ["₦6,000.00", "₦0.00", "₦5,000.00"];
   const [selectedDelivery, setSelectedDelivery] = useState(Delivery[0]);
 
-  const [loading, setLoading] = useState(false);
+  const [loadingOrder, setLoadingOrder] = useState(false);
+  const [loadingInvoice, setLoadingInvoice] = useState(false);
   const [message, setMessage] = useState("");
 
   const subtotal = cartItems.reduce((total, item) => {
@@ -35,7 +36,7 @@ const Checkout = () => {
 
   const handlePlaceOrder = async () => {
     try {
-      setLoading(true);
+      setLoadingOrder(true);
       setMessage("");
   
       const userId = localStorage.getItem("userId");
@@ -48,6 +49,7 @@ const Checkout = () => {
   
       const order = {
         orderId: generateOrderId(),
+        status: "",
         deliveryMethod: selectedDelivery,
         deliveryFee,
         discount,
@@ -93,13 +95,83 @@ const Checkout = () => {
       if (!updateResponse.ok) throw new Error("Failed to update user with new order");
   
       clearCart();
-      setMessage("Order placed successfully! Redirecting...");
+      setMessage("Order placed successfully!");
       setTimeout(() => navigate("/order-history"), 2000);
     } catch (error) {
       console.error("Failed to place order:", error);
       setMessage("There was an error placing your order.");
     } finally {
-      setLoading(false);
+      setLoadingOrder(false);
+    }
+  };
+
+
+  const handleInvoice = async () => {
+    try {
+      setLoadingInvoice(true);
+      setMessage("");
+  
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        navigate("/login");
+        return;
+      }
+  
+      const order = {
+        orderId: "",
+        status: "Invoice",
+        deliveryMethod: selectedDelivery,
+        deliveryFee,
+        discount,
+        serviceFee,
+        vat,
+        subtotal,
+        total,
+        items: cartItems.map(item => {
+          const unitPrice =
+            item.product.Variation?.find(v => v.color === item.selectedVariation?.color)?.price ??
+            item.product.price ?? 0;
+  
+          return {
+            productId: item.product.id,
+            name: item.product.name,
+            quantity: item.quantity,
+            selectedVariation: item.selectedVariation,
+            unitPrice,
+            image: item.product.image?.[0] ?? "",
+          };
+        }),
+        createdAt: new Date().toISOString(),
+      };
+  
+      const userResponse = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
+      );
+  
+      if (!userResponse.ok) throw new Error("User not found");
+  
+      const userData = await userResponse.json();
+      const updatedOrders = [...(userData.orders || []), order];
+  
+      const updateResponse = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`,
+        {
+          method: "PUT", // Or PATCH if you prefer partial update
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...userData, orders: updatedOrders }),
+        }
+      );
+  
+      if (!updateResponse.ok) throw new Error("Failed to update user with new order");
+  
+      clearCart();
+      setMessage("Invoice Requested successfully!");
+      setTimeout(() => navigate("/order-history"), 2000);
+    } catch (error) {
+      console.error("Failed to place order:", error);
+      setMessage("There was an error placing your order.");
+    } finally {
+      setLoadingInvoice(false);
     }
   };
 
@@ -242,17 +314,17 @@ const Checkout = () => {
             <div className="flex flex-col justify-center items-center">
               <button
                 onClick={handlePlaceOrder}
-                disabled={loading}
+                disabled={loadingOrder}
                 className="mx-auto py-3 px-10 mt-10 rounded cursor-pointer bg-red-600 text-white font-semibold hover:bg-red-800 transition transform active:scale-90"
               >
-                {loading ? "Placing Order..." : "Place Order"}
+                {loadingOrder ? "Placing Order..." : "Place Order"}
               </button>
               <button
-                onClick={() => navigate("/")}
-                disabled={loading}
+                onClick={handleInvoice}
+                disabled={loadingInvoice}
                 className="mx-auto py-3 px-10 mt-5 rounded cursor-pointer text-black font-semibold hover:bg-gray-300 transition transform active:scale-90"
               >
-                {loading ? "Processing..." : "Request for Quotation"}
+                {loadingInvoice ? "Processing..." : "Request for Quotation"}
               </button>
               {message && (
                 <p className="mt-4 text-center text-sm text-gray-600">{message}</p>
