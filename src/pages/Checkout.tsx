@@ -49,7 +49,7 @@ const Checkout = () => {
   
       const order = {
         orderId: generateOrderId(),
-        status: "",
+        status: "Paid",
         deliveryMethod: selectedDelivery,
         deliveryFee,
         discount,
@@ -94,9 +94,9 @@ const Checkout = () => {
   
       if (!updateResponse.ok) throw new Error("Failed to update user with new order");
   
-      clearCart();
       setMessage("Order placed successfully!");
       setTimeout(() => navigate("/order-history"), 2000);
+      clearCart();
     } catch (error) {
       console.error("Failed to place order:", error);
       setMessage("There was an error placing your order.");
@@ -164,9 +164,9 @@ const Checkout = () => {
   
       if (!updateResponse.ok) throw new Error("Failed to update user with new order");
   
-      clearCart();
       setMessage("Invoice Requested successfully!");
       setTimeout(() => navigate("/order-history"), 2000);
+      clearCart();
     } catch (error) {
       console.error("Failed to place order:", error);
       setMessage("There was an error placing your order.");

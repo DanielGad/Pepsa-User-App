@@ -1,4 +1,31 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+// context/CartAndSpinnerContext.tsx
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { FaSpinner, FaCheckCircle, FaTimes, FaExclamationCircle } from "react-icons/fa";
+
+// ------------------ Spinner Context Types & Setup ------------------
+
+type SpinnerType = "loading" | "success" | "error" | "info";
+
+type SpinnerState = {
+  visible: boolean;
+  type: SpinnerType;
+  message: string;
+};
+
+type SpinnerContextType = {
+  showSpinner: (type: SpinnerType, message: string) => void;
+  hideSpinner: () => void;
+};
+
+const SpinnerContext = createContext<SpinnerContextType | undefined>(undefined);
+
+// ------------------ Cart Context Types & Setup ------------------
 
 type Product = {
   id: number;
@@ -22,15 +49,41 @@ type CartItem = {
 
 type CartContextType = {
   cartItems: CartItem[];
-  addToCart: (product: Product, selectedVariation?: { color: string; price: number }, quantity?: number) => void;
-  removeFromCart: (productId: number, selectedVariation?: { color: string; price: number }) => void;
+  addToCart: (
+    product: Product,
+    selectedVariation?: { color: string; price: number },
+    quantity?: number
+  ) => void;
+  removeFromCart: (
+    productId: number,
+    selectedVariation?: { color: string; price: number }
+  ) => void;
   clearCart: () => void;
-  updateQuantity: (productId: number, amount: number, selectedVariation?: { color: string; price: number }) => void;
+  updateQuantity: (
+    productId: number,
+    amount: number,
+    selectedVariation?: { color: string; price: number }
+  ) => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
+// ------------------ Provider: Cart + Spinner Together ------------------
+
+export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const [spinner, setSpinner] = useState<SpinnerState>({
+    visible: false,
+    type: "info",
+    message: "",
+  });
+
+  const showSpinner = (type: SpinnerType, message: string) => {
+    setSpinner({ visible: true, type, message });
+    setTimeout(() => setSpinner(s => ({ ...s, visible: false })), 3000);
+  };
+
+  const hideSpinner = () => setSpinner(s => ({ ...s, visible: false }));
+
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     const stored = localStorage.getItem("cartItems");
     return stored ? JSON.parse(stored) : [];
@@ -54,6 +107,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       );
 
       if (existingItem) {
+        showSpinner("info", "Updated quantity in cart");
         return prev.map(item =>
           item.product.id === product.id &&
           item.selectedVariation?.color === selectedVariation?.color &&
@@ -62,6 +116,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             : item
         );
       } else {
+        showSpinner("success", "Added to cart");
         return [...prev, { product, quantity, selectedVariation }];
       }
     });
@@ -80,9 +135,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           )
       )
     );
+    showSpinner("error", "Removed from cart");
   };
 
-  const clearCart = () => setCartItems([]);
+  const clearCart = () => {
+    setCartItems([]);
+    showSpinner("info", "Cart cleared");
+  };
 
   const updateQuantity = (
     productId: number,
@@ -99,20 +158,57 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         )
         .filter(item => item.quantity > 0)
     );
+    showSpinner("info", "Updated quantity");
   };
 
   return (
-    <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, clearCart, updateQuantity }}
-    >
-      {children}
-    </CartContext.Provider>
+    <SpinnerContext.Provider value={{ showSpinner, hideSpinner }}>
+      <CartContext.Provider
+        value={{
+          cartItems,
+          addToCart,
+          removeFromCart,
+          clearCart,
+          updateQuantity,
+        }}
+      >
+        {children}
+        {spinner.visible && <SpinnerMessage type={spinner.type} message={spinner.message} />}
+      </CartContext.Provider>
+    </SpinnerContext.Provider>
   );
 };
+
+// ------------------ Spinner Message Component ------------------
+
+const iconMap = {
+  loading: <FaSpinner className="animate-spin text-blue-500" />,
+  success: <FaCheckCircle className="text-green-500" />,
+  error: <FaTimes className="text-red-500" />,
+  info: <FaExclamationCircle className="text-yellow-500" />,
+};
+
+const SpinnerMessage = ({ type, message }: { type: SpinnerType; message: string }) => (
+  <div className="fixed top-4 right-4 z-[9999]">
+    <div className="flex items-center space-x-2 bg-white border rounded-md shadow-lg px-4 py-2 min-w-[250px] max-w-sm">
+      {iconMap[type]}
+      <span className="text-gray-800 text-sm flex-1">{message}</span>
+    </div>
+  </div>
+);
+
+// ------------------ Custom Hooks ------------------
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useCart = () => {
   const context = useContext(CartContext);
-  if (!context) throw new Error("useCart must be used within CartProvider");
+  if (!context) throw new Error("useCart must be used within AppProvider");
+  return context;
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useSpinner = () => {
+  const context = useContext(SpinnerContext);
+  if (!context) throw new Error("useSpinner must be used within AppProvider");
   return context;
 };

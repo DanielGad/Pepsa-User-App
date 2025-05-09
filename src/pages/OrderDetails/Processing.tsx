@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Footer from "../components/Footer";
+import Footer from "../../components/Footer";
 import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import { ClipLoader } from "react-spinners";
-import Order from "../assets/images/order.png"
+import Order from "../../assets/images/order.png"
 
 dayjs.extend(advancedFormat);
 
@@ -16,6 +16,7 @@ interface OrderItem {
   orderId: number;
   selectedVariation: {
     color: string;
+    price: number
   };
 }
 
@@ -34,7 +35,7 @@ interface Order {
   items: OrderItem[];
 }
 
-const Dispatched: React.FC = () => {
+const Processing: React.FC = () => {
    const { orderIndex } = useParams<{ orderIndex: string }>();
    const navigate = useNavigate();
    const [order, setOrder] = useState<Order | null>(null);
@@ -89,14 +90,6 @@ const Dispatched: React.FC = () => {
      return null;
    }
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-red-600">Loading...</div>
-      </div>
-    );
-  }
-
   if (error) {
     return <p className="text-center text-red-600 mt-10">{error}</p>;
   }
@@ -107,23 +100,22 @@ const Dispatched: React.FC = () => {
 
   return (
       <>
-      <div className="flex justify-between px-20 bg-red-50 items-center">
+      <div className="flex justify-between lg:px-20 bg-red-50 items-center text-lg">
         <img src={Order} alt="order image" className="w-18"/>
 
         <div className="flex flex-col justify-center">
-          <h2 className="font-semibold text-xl">Order ID: {order.orderId}</h2>
-          <p className="text-gray-500 text-lg">{dayjs(order.createdAt).format("Do MMMM YYYY")}</p>
+          <h2 className="font-semibold">Order ID: {order.orderId}</h2>
+          <p className="text-gray-500 mr-5">{dayjs(order.createdAt).format("Do MMMM YYYY")}</p>
         </div>
 
-        <p className="text-2xl font-semibold text-red-800">{order.status}</p>
+        <p className="font-semibold text-red-800">{order.status}</p>
       </div>
       
       <div className="p-4 md:p-6 md:mx-20">
       <div key={order.orderId}>
         <div className="space-y-6">
           {order.items.map((item, index) => {
-            const unitPrice = order.subtotal / order.items.length;
-            const totalPrice = unitPrice * item.quantity;
+            const itemPrice = item.selectedVariation.price * item.quantity
 
             return (
               <div
@@ -144,12 +136,17 @@ const Dispatched: React.FC = () => {
                     </p>
                   )}
                   <p className="text-gray-800 mt-1 text-sm">
-                    ₦{unitPrice.toLocaleString()}
+                    ₦{item.selectedVariation.price.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                   </p>
                 </div>
 
                 <p className="text-red-700 font-bold mt-2 md:mt-0">
-                  ₦{totalPrice.toLocaleString(undefined, {
+                  ₦{
+                  
+                  itemPrice.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
@@ -169,7 +166,7 @@ const Dispatched: React.FC = () => {
                   name="delivery"
                   value={order.deliveryMethod}
                   checked={order.deliveryMethod === v}
-                  onChange={() => { } }
+                  onChange={() => { }}
                   className="accent-red-600"
                   readOnly />
                 <span className="w-3/9">{v}</span>
@@ -223,4 +220,4 @@ const Dispatched: React.FC = () => {
   );
 };
 
-export default Dispatched;
+export default Processing;

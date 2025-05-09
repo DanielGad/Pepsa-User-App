@@ -76,17 +76,57 @@ const DeliveryRequest = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-
-    setSaving(true);
-    setTimeout(() => {
-      // Simulate saving
+  
+    try {
+      setSaving(true);
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        navigate("/login");
+        return;
+      }
+  
+      // First fetch the current user data
+      const response = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
+      );
+      
+      if (!response.ok) throw new Error("Failed to fetch user data");
+      
+      const userData = await response.json();
+      
+      // Update the user data with the form values
+      const updatedUser = {
+        ...userData,
+        name: formData.name,
+        address: formData.deliveryLocation,
+        houseNo: formData.buildingNo,
+        phone: formData.phone,
+        landmark: formData.landmark,
+      };
+  
+      // Send the update to the server
+      const updateResponse = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedUser),
+        }
+      );
+  
+      if (!updateResponse.ok) throw new Error("Failed to update delivery request");
+  
+      alert("Delivery request saved successfully!");
+      navigate("/checkout");
+    } catch (err) {
+      console.error("Error saving delivery request:", err);
+      alert("There was an error saving your delivery request. Please try again.");
+    } finally {
       setSaving(false);
-      alert("Delivery request saved!");
-      navigate("/confirmation"); // Or wherever you want
-    }, 1500);
+    }
   };
 
   return (

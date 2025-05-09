@@ -5,10 +5,6 @@ import Home from './pages/Home';
 import WhatsAppButton from './components/WhatsappButton';
 import ProductDetails from './pages/ProductDetails';
 import Categories from './pages/Categories';
-// import Sales from './pages/Sales';
-// import BestSeller from './pages/BestSeller';
-// import NewIn from './pages/NewIn';
-// import Account from './pages/Account';
 import Cart from './pages/Cart';
 import { useEffect, useState } from 'react';
 import MobileCart from './pages/MobileCart';
@@ -22,9 +18,11 @@ import MobileAccount from './pages/MobileAccount';
 import MobileAccDetails from './pages/MobileAccDetails';
 import MyAccount from './pages/MyAccount';
 import OrderHistory from './pages/OrderHistory';
-import OrderDetails from './pages/OrderDetails';
-import Invoice from './pages/Invoice';
-// import OrderHistory from './pages/OrderHistory';
+import Delivered from './pages/OrderDetails/Delivered';
+import Invoice from './pages/OrderDetails/Invoice';
+import Paid from './pages/OrderDetails/Paid';
+import Dispatched from './pages/OrderDetails/Dispatched';
+import Processing from './pages/OrderDetails/Processing';
 
 function App() {
 
@@ -59,12 +57,12 @@ function App() {
           <Route path="/account" element={isMobile ? <MobileAccount /> : <MyAccount />} />
           <Route path="/my-details" element={<MobileAccDetails />} />
           <Route path="/order-history" element={<OrderHistory />} />
-          <Route path="/order-details/:orderIndex" element={<OrderDetails />} />
-          <Route path="/invoice/:orderIndex" element={<Invoice />} />
-          {/* <Route path="/sales" element={<Sales />} />
-          <Route path="/best-seller" element={<BestSeller />} />
-          <Route path="/new-in" element={<NewIn />} />
-          <Route path="/account" element={<Account />} /> */} 
+          <Route path="/orders/delivered/:orderIndex" element={<Delivered />} />
+          <Route path="/orders/invoice/:orderIndex" element={<Invoice />} />
+          <Route path="/orders/paid/:orderIndex" element={<Paid />} />
+          <Route path="/orders/dispatched/:orderIndex" element={<Dispatched />} />
+          <Route path="/orders/:orderIndex" element={<Processing />} />
+
         </Routes>
       </div>
     </Router>

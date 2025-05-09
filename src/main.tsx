@@ -3,12 +3,12 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import './global.css'
 import App from './App.tsx'
-import { CartProvider } from './components/CartContext.tsx'
+import { AppProvider } from './components/CartContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <CartProvider>
+    <AppProvider>
       <App />
-    </CartProvider>
+    </AppProvider>
   </StrictMode>,
 )

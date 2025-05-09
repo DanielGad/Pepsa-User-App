@@ -1,34 +1,22 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import ClipLoader from "react-spinners/ClipLoader";
-
-interface Item {
-  productId: number;
-  name: string;
-  quantity: number;
-  selectedVariation: { color: string; price: number };
-  unitPrice: number;
-  image: string;
-}
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import Paid from "./OrderDetails/Paid";
+import Delivered from "./OrderDetails/Delivered";
+import Dispatched from "./OrderDetails/Dispatched";
+import Invoice from "./OrderDetails/Invoice";
+import Processing from "./OrderDetails/Processing";
 
 interface Order {
-  deliveryMethod: string;
-  deliveryFee: number;
-  discount: number;
-  serviceFee: number;
-  vat: number;
-  subtotal: number;
-  total: number;
-  createdAt: string;
-  items: Item[];
+  orderId: number;
+  status: string;
+  // other order fields...
 }
 
-const OrderDetails: React.FC = () => {
-  const { orderIndex } = useParams<{ orderIndex: string }>();
-  const navigate = useNavigate();
+const OrderDetails = () => {
+  const { orderIndex } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -38,107 +26,34 @@ const OrderDetails: React.FC = () => {
     }
 
     fetch(`https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch user");
-        return res.json();
-      })
-      .then((userData) => {
-        const idx = parseInt(orderIndex ?? "", 10);
-        const orders: Order[] = userData.orders || [];
-        if (isNaN(idx) || idx < 0 || idx >= orders.length) {
-          throw new Error("Order not found");
-        }
-        setOrder(orders[idx]);
+      .then((res) => res.json())
+      .then((data) => {
+        const foundOrder = data.orders[Number(orderIndex)];
+        setOrder(foundOrder);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
-        setError("Could not load order details.");
+      .catch(() => {
         setLoading(false);
       });
-  }, [navigate, orderIndex]);
+  }, [orderIndex, navigate]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <ClipLoader size={40} color="#E53E3E" />
-        <div className="ml-3 text-[#E53E3E]">Please Wait...</div>
-      </div>
-    );
+  if (loading) return <p>Loading order...</p>;
+  if (!order) return <p>Order not found.</p>;
+
+  const status = order.status.toLowerCase();
+
+  switch (status) {
+    case "paid":
+      return <Paid order={order.status} />;
+    case "delivered":
+      return <Delivered order={order.status} />;
+    case "dispatched":
+      return <Dispatched order={order.status} />;
+    case "invoice":
+      return <Invoice order={order.status} />;
+    default:
+      return <Processing order={order.status} />;
   }
-
-  if (error) {
-    return <p className="text-center text-red-600 mt-10">{error}</p>;
-  }
-
-  if (!order) {
-    return null;
-  }
-
-  return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Order Details</h1>
-      <p>
-        <span className="font-medium">Date:</span>{" "}
-        {new Date(order.createdAt).toLocaleString()}
-      </p>
-      <p>
-        <span className="font-medium">Delivery Method:</span>{" "}
-        {order.deliveryMethod}
-      </p>
-      <p>
-        <span className="font-medium">Delivery Fee:</span> ₦
-        {order.deliveryFee.toLocaleString()}
-      </p>
-      <p>
-        <span className="font-medium">Discount:</span> ₦
-        {order.discount.toLocaleString()}
-      </p>
-      <p>
-        <span className="font-medium">Service Fee:</span> ₦
-        {order.serviceFee.toLocaleString()}
-      </p>
-      <p>
-        <span className="font-medium">VAT:</span> ₦
-        {order.vat.toLocaleString()}
-      </p>
-      <p>
-        <span className="font-medium">Subtotal:</span> ₦
-        {order.subtotal.toLocaleString()}
-      </p>
-      <p className="text-lg font-semibold">
-        Total: ₦{order.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6 mb-2">Items</h2>
-      <ul className="space-y-4">
-        {order.items.map((item, i) => (
-          <li key={i} className="flex items-center gap-4 border p-4 rounded-lg">
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-16 h-16 object-cover rounded"
-            />
-            <div>
-              <p className="font-medium">{item.name}</p>
-              <p>Quantity: {item.quantity}</p>
-              <p>Unit Price: ₦{item.unitPrice.toLocaleString()}</p>
-              <p>
-                Total: ₦
-                {(item.unitPrice * item.quantity).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                })}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      <Link to="/order-history" className="inline-block mt-6 text-red-600 hover:underline">
-        ← Back to Order History
-      </Link>
-    </div>
-  );
 };
 
 export default OrderDetails;

@@ -53,7 +53,7 @@ const OrderHistory: React.FC = () => {
       })
       .catch((err) => {
         console.error(err);
-        setError("Could not load order history.");
+        setError("No internet connection, Kindly check your internet and try again");
         setLoading(false);
       });
   }, [navigate]);
@@ -101,14 +101,42 @@ const OrderHistory: React.FC = () => {
   
 
   return (
-    <><div className="p-6 lg:mx-20 mb-10">
-      <h1 className="text-2xl font-semibold">Order History</h1>
+    <><div className="lg:p-6 lg:mx-20 mb-10">
+
+      <div className="lg:hidden mt-[-20px] mb-10 flex justify-center gap-2 text-sm bg-gray-200 py-1 relative">
+        <Link to={"/"}><span className="">Home</span></Link>
+         &gt; 
+         <Link to={"/account"}><span className="">My Account</span></Link>
+      </div>
+
+      <h1 className="hidden lg:block text-2xl font-semibold">Order History</h1>
       {orders.length === 0 ? (
         <p className="text-gray-600">You have no orders yet.</p>
       ) : (
         <div className="space-y-5 grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
           {orders.map((order, idx) => (
-            <Link key={idx} to={`/order-details/${order.orderId}`}>
+            <div key={idx} onClick={() => {
+              const status = order.status.toLowerCase();
+            
+              // Define which route to go based on status
+              switch (status) {
+                case "paid":
+                  navigate(`/orders/paid/${idx}`);
+                  break;
+                case "dispatched":
+                  navigate(`/orders/dispatched/${idx}`);
+                  break;
+                case "delivered":
+                  navigate(`/orders/delivered/${idx}`);
+                  break;
+                case "invoice":
+                  navigate(`/orders/invoice/${idx}`);
+                  break;
+                default:
+                  navigate(`/orders/${idx}`); // fallback or generic OrderDetails
+              }
+            }}
+             >
               <div className="p-6 border-2 border-gray-200 rounded-lg hover:shadow-xl">
                 <div className="grid lg:flex gap-5">
                   <div className="lg:w-1/2 w-2/2">
@@ -170,7 +198,7 @@ const OrderHistory: React.FC = () => {
                 )}
               </p>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
