@@ -36,7 +36,7 @@ interface Order {
 }
 
 const Paid: React.FC = () => {
-   const { orderIndex } = useParams<{ orderIndex: string }>();
+   const { orderId } = useParams<{ orderId: string }>();
    const navigate = useNavigate();
    const [order, setOrder] = useState<Order | null>(null);
    const [loading, setLoading] = useState(true);
@@ -45,33 +45,44 @@ const Paid: React.FC = () => {
      const Delivery = ["Vendor Delivery", "Self Pickup", "Pepsa Dispatch"];
      const Fee = ["₦6,000.00", "₦0.00", "₦5,000.00"];
  
-   useEffect(() => {
-     const userId = localStorage.getItem("userId");
-     if (!userId) {
-       navigate("/login");
-       return;
-     }
- 
-     fetch(`https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`)
-       .then((res) => {
-         if (!res.ok) throw new Error("Failed to fetch user");
-         return res.json();
-       })
-       .then((userData) => {
-         const idx = parseInt(orderIndex ?? "", 10);
-         const orders: Order[] = userData.orders || [];
-         if (isNaN(idx) || idx < 0 || idx >= orders.length) {
-           throw new Error("Order not found");
-         }
-         setOrder(orders[idx]);
-         setLoading(false);
-       })
-       .catch((err) => {
-         console.error(err);
-         setError("Could not load order details.");
-         setLoading(false);
-       });
-   }, [navigate, orderIndex]);
+useEffect(() => {  
+  if (!orderId) {
+    setError("Order ID is missing.");
+    setLoading(false);
+    return;
+  }
+
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    navigate("/login");
+    return;
+  }
+
+  fetch(`https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch user");
+      return res.json();
+    })
+    .then((userData) => {
+      const orders: Order[] = userData.orders || [];
+
+      const foundOrder = orders.find(
+        (order) => order.orderId === Number(orderId)
+      );
+
+      if (!foundOrder) {
+        throw new Error("Order not found");
+      }
+
+      setOrder(foundOrder);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error("Error loading order:", err);
+      setError("Could not load order details.");
+      setLoading(false);
+    });
+}, [navigate, orderId]);
  
    if (loading) {
      return (

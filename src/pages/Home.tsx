@@ -22,14 +22,14 @@ const categories = [
 ];
 
 const Home = () => {
-  const { addToCart } = useCart();
+  const { addToCartFromHome  } = useCart();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const productRef = useRef<HTMLDivElement>(null);
   const productsPerPage = 8;
 
-  const selectedVariation = Products[0].Variation[0];
-  const quantity = 1;
+  // const selectedVariation = Products[0].Variation[0];
+  // const quantity = 1;
 
   // Filter products based on category
   const filteredProducts = useMemo(() => {
@@ -101,7 +101,7 @@ const Home = () => {
                 </p>
                 <button 
                   className="mt-4 bg-red-600 text-white w-full py-2 rounded-md hover:bg-red-900 transition transform active:scale-90 cursor-pointer"
-                  onClick={() => addToCart(product, selectedVariation, quantity)}
+                  onClick={() => addToCartFromHome(product)}
                 >
                   Add to Cart
                 </button>

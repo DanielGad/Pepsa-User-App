@@ -35,7 +35,7 @@ interface Order {
 }
 
 const Delivered: React.FC = () => {
-   const { orderIndex } = useParams<{ orderIndex: string }>();
+   const { orderId } = useParams<{ orderId: string }>();
    const navigate = useNavigate();
    const [order, setOrder] = useState<Order | null>(null);
    const [loading, setLoading] = useState(true);
@@ -44,33 +44,44 @@ const Delivered: React.FC = () => {
      const Delivery = ["Vendor Delivery", "Self Pickup", "Pepsa Dispatch"];
      const Fee = ["₦6,000.00", "₦0.00", "₦5,000.00"];
  
-   useEffect(() => {
-     const userId = localStorage.getItem("userId");
-     if (!userId) {
-       navigate("/login");
-       return;
-     }
- 
-     fetch(`https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`)
-       .then((res) => {
-         if (!res.ok) throw new Error("Failed to fetch user");
-         return res.json();
-       })
-       .then((userData) => {
-         const idx = parseInt(orderIndex ?? "", 10);
-         const orders: Order[] = userData.orders || [];
-         if (isNaN(idx) || idx < 0 || idx >= orders.length) {
-           throw new Error("Order not found");
-         }
-         setOrder(orders[idx]);
-         setLoading(false);
-       })
-       .catch((err) => {
-         console.error(err);
-         setError("Could not load order details.");
-         setLoading(false);
-       });
-   }, [navigate, orderIndex]);
+useEffect(() => {  
+  if (!orderId) {
+    setError("Order ID is missing.");
+    setLoading(false);
+    return;
+  }
+
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    navigate("/login");
+    return;
+  }
+
+  fetch(`https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch user");
+      return res.json();
+    })
+    .then((userData) => {
+      const orders: Order[] = userData.orders || [];
+
+      const foundOrder = orders.find(
+        (order) => order.orderId === Number(orderId)
+      );
+
+      if (!foundOrder) {
+        throw new Error("Order not found");
+      }
+
+      setOrder(foundOrder);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error("Error loading order:", err);
+      setError("Could not load order details.");
+      setLoading(false);
+    });
+}, [navigate, orderId]);
  
    if (loading) {
      return (
@@ -107,15 +118,15 @@ const Delivered: React.FC = () => {
 
   return (
       <>
-      <div className="flex justify-between px-20 bg-red-50 items-center">
+      <div className="flex justify-between lg:px-20 bg-red-50 items-center text-lg">
         <img src={Order} alt="order image" className="w-18"/>
 
         <div className="flex flex-col justify-center">
-          <h2 className="font-semibold text-xl">Order ID: {order.orderId}</h2>
+          <h2 className="font-semibold text-lg">Order ID: {order.orderId}</h2>
           <p className="text-gray-500 text-lg">{dayjs(order.createdAt).format("Do MMMM YYYY")}</p>
         </div>
 
-        <p className="text-2xl font-semibold text-red-800">{order.status}</p>
+        <p className="text-lg font-semibold text-red-800 mr-5">{order.status}</p>
       </div>
       
       <div className="p-4 md:p-6 md:mx-20">

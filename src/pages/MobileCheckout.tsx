@@ -120,9 +120,13 @@ const MobileCheckout = () => {
         navigate("/login");
         return;
       }
+
+      const generateInvoiceId = () => Math.floor(10000000 + Math.random() * 90000000);
+
   
       const order = {
         orderId: "",
+        invoiceId: generateInvoiceId(),
         status: "Invoice",
         deliveryMethod: selectedDelivery,
         deliveryFee,
@@ -317,13 +321,11 @@ const MobileCheckout = () => {
               <Link to="/">
                 <button className="mx-auto py-3 px-30 mt-10 rounded cursor-pointer bg-red-600 text-white font-semibold hover:bg-red-800 transition transform active:scale-90" onClick={handlePlaceOrder}>
                   {loadingOrder ? "Placing Order..." : message || "Place Order"}
-                  Place Order
                 </button>
               </Link>
               <Link to="/">
                 <button className="mx-auto py-3 px-10 mt-5 rounded cursor-pointer  text-black font-semibold hover:bg-gray-300 transition transform active:scale-90" onClick={handleInvoice}>
                   {loadingInvoice ? "Processing..." : message || "Request for Quotation"}
-                  Request for Quotation
                 </button>
               </Link>
             </div>

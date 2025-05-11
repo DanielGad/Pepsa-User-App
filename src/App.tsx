@@ -57,11 +57,11 @@ function App() {
           <Route path="/account" element={isMobile ? <MobileAccount /> : <MyAccount />} />
           <Route path="/my-details" element={<MobileAccDetails />} />
           <Route path="/order-history" element={<OrderHistory />} />
-          <Route path="/orders/delivered/:orderIndex" element={<Delivered />} />
-          <Route path="/orders/invoice/:orderIndex" element={<Invoice />} />
-          <Route path="/orders/paid/:orderIndex" element={<Paid />} />
-          <Route path="/orders/dispatched/:orderIndex" element={<Dispatched />} />
-          <Route path="/orders/:orderIndex" element={<Processing />} />
+          <Route path="/orders/delivered/:orderId" element={<Delivered />} />
+          <Route path="/orders/invoice/:invoiceId" element={<Invoice />} />
+          <Route path="/orders/paid/:orderId" element={<Paid />} />
+          <Route path="/orders/dispatched/:orderId" element={<Dispatched />} />
+          <Route path="/orders/:orderId" element={<Processing />} />
 
         </Routes>
       </div>

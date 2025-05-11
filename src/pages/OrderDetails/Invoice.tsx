@@ -14,6 +14,7 @@ interface OrderItem {
   quantity: number;
   image: string;
   orderId: number;
+  invoiceId: number;
   selectedVariation: {
     color: string;
     price: number;
@@ -22,6 +23,7 @@ interface OrderItem {
 
 interface Order {
   orderId: number;
+  invoiceId: number;
   deliveryMethod: string;
   deliveryFee: number;
   discount: number;
@@ -36,7 +38,7 @@ interface Order {
 }
 
 const Invoice: React.FC = () => {
-  const { orderIndex } = useParams<{ orderIndex: string }>();
+  const { invoiceId } = useParams<{ invoiceId: string }>();
   const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,44 +49,64 @@ const Invoice: React.FC = () => {
   const Delivery = ["Vendor Delivery", "Self Pickup", "Pepsa Dispatch"];
   const Fee = [6000, 0, 5000];
 
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      navigate("/login");
-      return;
-    }
+  useEffect(() => {  
+  if (!invoiceId) {
+    setError("Invoice ID is missing.");
+    setLoading(false);
+    return;
+  }
 
-    fetch(`https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch user");
-        return res.json();
-      })
-      .then((userData) => {
-        const idx = parseInt(orderIndex ?? "", 10);
-        const orders: Order[] = userData.orders || [];
-        if (isNaN(idx) || idx < 0 || idx >= orders.length) {
-          throw new Error("Order not found");
-        }
-        
-        const orderWithUnitPrices = {
-          ...orders[idx],
-          items: orders[idx].items.map(item => ({
-            ...item,
-            // Ensure image path is correct
-            image: item.image || Order // Fallback to default image if not provided
-          }))
-        };
-        
-        setOrder(orderWithUnitPrices);
-        setTempOrder(orderWithUnitPrices);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Could not load order details.");
-        setLoading(false);
-      });
-  }, [navigate, orderIndex]);
+  const invoiceIdNum = Number(invoiceId); // Convert to number
+  if (isNaN(invoiceIdNum)) {
+    setError("Invalid Invoice ID");
+    setLoading(false);
+    return;
+  }
+
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    navigate("/login");
+    return;
+  }
+
+  fetch(`https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch user");
+      return res.json();
+    })
+    .then((userData) => {
+      const orders: Order[] = userData.orders || [];
+      // console.log('Searching for:', invoiceIdNum);
+      // console.log('Available invoices:', orders.map(o => o?.invoiceId));
+      
+      // Robust find that handles undefined and type conversion
+      const foundOrder = orders.find(order => 
+        order?.invoiceId !== undefined && 
+        Number(order.invoiceId) === invoiceIdNum
+      );
+
+      if (!foundOrder) {
+        throw new Error(`Invoice #${invoiceIdNum} not found in your orders`);
+      }
+
+      const orderWithImages = {
+        ...foundOrder,
+        items: foundOrder.items.map(item => ({
+          ...item,
+          image: item.image || Order
+        }))
+      };
+
+      setOrder(orderWithImages);
+      setTempOrder(orderWithImages);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error("Error loading invoice:", err);
+      setError(err.message);
+      setLoading(false);
+    });
+}, [navigate, invoiceId]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);

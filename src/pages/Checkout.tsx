@@ -116,8 +116,12 @@ const Checkout = () => {
         navigate("/login");
         return;
       }
+
+      const generateInvoiceId = () => Math.floor(10000000 + Math.random() * 90000000);
+
   
       const order = {
+        invoiceId: generateInvoiceId(),
         orderId: "",
         status: "Invoice",
         deliveryMethod: selectedDelivery,

@@ -52,8 +52,9 @@ type CartContextType = {
   addToCart: (
     product: Product,
     selectedVariation?: { color: string; price: number },
-    quantity?: number
+    quantity?: number,
   ) => void;
+    addToCartFromHome: (product: Product) => void; // ✅ Added this
   removeFromCart: (
     productId: number,
     selectedVariation?: { color: string; price: number }
@@ -122,6 +123,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const addToCartFromHome = (product: Product) => {
+  const defaultVariation = { color: "black", price: product.price };
+
+  addToCart(product, defaultVariation, 1);
+};
+
+
   const removeFromCart = (
     productId: number,
     selectedVariation?: { color: string; price: number }
@@ -167,6 +175,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         value={{
           cartItems,
           addToCart,
+          addToCartFromHome,
           removeFromCart,
           clearCart,
           updateQuantity,
