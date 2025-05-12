@@ -80,7 +80,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const showSpinner = (type: SpinnerType, message: string) => {
     setSpinner({ visible: true, type, message });
-    setTimeout(() => setSpinner(s => ({ ...s, visible: false })), 3000);
+    setTimeout(() => setSpinner(s => ({ ...s, visible: false })), 500);
   };
 
   const hideSpinner = () => setSpinner(s => ({ ...s, visible: false }));
@@ -166,7 +166,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         )
         .filter(item => item.quantity > 0)
     );
-    showSpinner("info", "Updated quantity");
+    // showSpinner("info", "Updated quantity");
   };
 
   return (

@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import Footer from "../components/Footer";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaTrashAlt } from "react-icons/fa";
 import { useState } from "react";
 import Discount from "../assets/images/discount.png";
 
@@ -16,6 +16,11 @@ const Checkout = () => {
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [loadingInvoice, setLoadingInvoice] = useState(false);
   const [message, setMessage] = useState("");
+    const [showPaymentSummary, setShowPaymentSummary] = useState(false);
+  
+    const togglePaymentSummary = () => {
+    setShowPaymentSummary(prev => !prev);
+  };
 
   const subtotal = cartItems.reduce((total, item) => {
     const variationPrice =
@@ -95,7 +100,7 @@ const Checkout = () => {
       if (!updateResponse.ok) throw new Error("Failed to update user with new order");
   
       setMessage("Order placed successfully!");
-      setTimeout(() => navigate("/order-history"), 2000);
+      setTimeout(() => navigate("/order-history"), 1000);
       clearCart();
     } catch (error) {
       console.error("Failed to place order:", error);
@@ -169,7 +174,9 @@ const Checkout = () => {
       if (!updateResponse.ok) throw new Error("Failed to update user with new order");
   
       setMessage("Invoice Requested successfully!");
-      setTimeout(() => navigate("/order-history"), 2000);
+      setTimeout(() => {
+        navigate("/order-history");
+      }, 1000);
       clearCart();
     } catch (error) {
       console.error("Failed to place order:", error);
@@ -184,18 +191,23 @@ const Checkout = () => {
 
   return (
     <>
-      <div className="p-4 md:p-6 md:mx-20">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-4 px-2 md:px-5">
-          <h1 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">Cart Items</h1>
-          <button
-            onClick={clearCart}
-            className="text-white font-medium cursor-pointer bg-red-600 px-4 py-2 rounded-2xl hover:bg-red-800 transition transform active:scale-90"
+      <div className="p-4 md:p-6 lg:mx-20">
+        {
+          cartItems.length === 0 ? "" : 
+          <div className="flex md:flex-row items-center justify-between mb-4 px-2 md:px-5">
+          <h1 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">
+            Items
+          </h1>
+          <div
+            onClick={() => clearCart()}
+            className="text-red-800 text-xl font-semibold cursor-pointer px-4 py-2 rounded-2xl hover:bg-red-800 transition transform active:scale-90"
           >
             Clear Cart
-          </button>
+          </div>
         </div>
+        }
 
-        <div className="space-y-6">
+        <div className="hidden lg:block space-y-6">
           {cartItems.map((item, index) => {
             const unitPrice =
               item.product.Variation?.find(v => v.color === item.selectedVariation?.color)?.price ??
@@ -257,6 +269,103 @@ const Checkout = () => {
           })}
         </div>
 
+
+        {/* Mobile Checkout */}
+        <div className="lg:hidden space-y-6">
+          {cartItems.map((item, index) => {
+
+            return (
+              <div
+              key={`${item.product.id}-${item.selectedVariation?.color}-${index}`}
+              className="flex flex-row items-center justify-between gap-4 shadow-md py-4 px-2 md:px-8 rounded-md"
+            >
+              <div className="">
+                <img
+                src={item.product.image[0]}
+                alt={item.product.name}
+                className="w-25 h-25 object-cover rounded-xl"
+              />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-medium">
+                  {item.quantity}× {item.product.name}
+                </p>
+                
+                <div className="text-sm">
+                  {item.selectedVariation && (
+                  <p className="text-sm text-gray-500">
+                    {item.selectedVariation.color} color
+                  </p>
+                )}
+                <p className="text-sm">(₦
+                {(
+                  item.product.Variation?.find(
+                    (v) => v.color === item.selectedVariation?.color
+                  )?.price ?? item.product.price
+                ).toLocaleString()}
+                )</p>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <button
+                    onClick={() =>
+                      updateQuantity(
+                        item.product.id,
+                        -1,
+                        item.selectedVariation
+                      )
+                    }
+                    className="border text-sm cursor-pointer border-red-600 px-2 rounded text-red-600 hover:bg-red-50"
+                  >
+                    -
+                  </button>
+                  <span>{item.quantity}</span>
+                  <button
+                    onClick={() =>
+                      updateQuantity(
+                        item.product.id,
+                        1,
+                        item.selectedVariation
+                      )
+                    }
+                    className="border text-sm cursor-pointer border-red-600 px-2 rounded text-red-600 hover:bg-red-50"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-8 justify-center items-center">
+                  <p className="text-red-700 text-sm font-bold mt-2 md:mt-0">
+                ₦
+                {(
+                  item.quantity *
+                  (item.product.Variation?.find(
+                    (v) => v.color === item.selectedVariation?.color
+                  )?.price ?? item.product.price)
+                ).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </p>
+
+              <button
+                onClick={() =>
+                  removeFromCart(item.product.id, item.selectedVariation)
+                }
+                className="flex items-center gap-2 text-sm text-red-600 border border-red-600 px-2 py-2 rounded-md cursor-pointer hover:text-red-800 transition-all"
+              >
+                <FaTrashAlt />
+              </button>
+              </div>
+            </div>
+            );
+          })}
+        </div>
+
+
+
         {cartItems.length > 0 ? (
           <>
             <div className="mt-10 flex flex-col md:flex-row justify-between gap-10 px-2 md:px-5">
@@ -279,54 +388,61 @@ const Checkout = () => {
               </div>
 
               <div className="w-full md:w-2/5 flex flex-col gap-5 shadow-xl p-5 rounded-xl">
-                <h2 className="text-2xl font-semibold text-gray-600">Payment Summary</h2>
-                <div className="flex justify-between text-gray-600">
-                  <p>Subtotal:</p>
-                  <p className="font-semibold">₦{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                <div className="flex flex-col gap-5 shadow-xl p-5 rounded-xl" onClick={togglePaymentSummary}>
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-semibold text-gray-600">Payment Summary</h2>
+                  {showPaymentSummary ? (
+                    <FaChevronUp className="text-gray-600" />
+                  ) : (
+                    <FaChevronDown className="text-gray-600" />
+                  )}
+                  </div>
+                  {showPaymentSummary && (
+                <><div className="flex justify-between text-gray-600">
+                      <p>Subtotal:</p>
+                      <p className="font-semibold">₦{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                    </div><div className="flex justify-between text-gray-600">
+                        <p>Discount:</p>
+                        <p className="font-semibold">-₦{discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                      </div><div className="flex justify-between text-gray-600">
+                        <p>VAT(0%):</p>
+                        <p className="font-semibold">₦{vat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                      </div><div className="flex justify-between text-gray-600">
+                        <p>Delivery Fee:</p>
+                        <p className="font-semibold">₦{deliveryFee.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                      </div><div className="flex justify-between text-gray-600">
+                        <p>Service Fee:</p>
+                        <p className="font-semibold">₦{serviceFee.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                      </div>
+                      </>
+                  )}
+                  <div className="flex justify-between text-md text-gray-800 font-semibold">
+                    <p>Total Amount:</p>
+                    <p>₦{total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                  </div>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <p>Discount:</p>
-                  <p className="font-semibold">-₦{discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <p>VAT(0%):</p>
-                  <p className="font-semibold">₦{vat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <p>Delivery Fee:</p>
-                  <p className="font-semibold">₦{deliveryFee.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <p>Service Fee:</p>
-                  <p className="font-semibold">₦{serviceFee.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                </div>
-                <div className="flex justify-between text-md text-gray-800 font-semibold">
-                  <p>Total Amount:</p>
-                  <p>₦{total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                </div>
-                <div className="relative flex items-center">
-                  <img src={Discount} alt="Discount Icon" className="w-6 absolute left-3" />
-                  <input
-                    type="text"
-                    placeholder="Apply Discount Code"
-                    className="w-full pl-10 text-center py-3 bg-red-100 rounded-xl uppercase"
-                  />
-                </div>
+                  <div className="relative flex items-center">
+                    <img src={Discount} alt="Discount Icon" className="w-6 absolute left-3" />
+                    <input
+                      type="text"
+                      placeholder="Apply Discount Code"
+                      className="w-full pl-10 text-center py-3 bg-red-100 rounded-xl uppercase" />
+                  </div>
               </div>
             </div>
 
-            <div className="flex flex-col justify-center items-center">
+            <div className="flex flex-col w-full justify-center items-center lg:px-100">
               <button
                 onClick={handlePlaceOrder}
                 disabled={loadingOrder}
-                className="mx-auto py-3 px-10 mt-10 rounded cursor-pointer bg-red-600 text-white font-semibold hover:bg-red-800 transition transform active:scale-90"
+                className="mx-auto py-3 w-full items-center px-10 mt-10 rounded cursor-pointer bg-red-600 text-white font-semibold hover:bg-red-800 transition transform active:scale-90"
               >
                 {loadingOrder ? "Placing Order..." : "Place Order"}
               </button>
               <button
                 onClick={handleInvoice}
                 disabled={loadingInvoice}
-                className="mx-auto py-3 px-10 mt-5 rounded cursor-pointer text-black font-semibold hover:bg-gray-300 transition transform active:scale-90"
+                className="mx-auto py-3 w-full px-10 mt-5 rounded cursor-pointer text-black font-semibold hover:bg-gray-300 transition transform active:scale-90"
               >
                 {loadingInvoice ? "Processing..." : "Request for Quotation"}
               </button>

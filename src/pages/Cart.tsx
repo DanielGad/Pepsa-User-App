@@ -49,19 +49,22 @@ const Cart: React.FC = () => {
   return (
     <>
       <div className="p-4 md:p-6 md:mx-20">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-4 px-2 md:px-5">
+        {
+          cartItems.length === 0 ? "" : 
+          <div className="flex md:flex-row items-center justify-between mb-4 px-2 md:px-5">
           <h1 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4">
-            Cart Items
+            Items
           </h1>
-          <button
+          <div
             onClick={() => clearCart()}
-            className="text-white font-medium cursor-pointer bg-red-600 px-4 py-2 rounded-2xl hover:bg-red-800 transition transform active:scale-90"
+            className="text-red-800 text-xl font-semibold cursor-pointer px-4 py-2 rounded-2xl hover:bg-red-800 transition transform active:scale-90"
           >
             Clear Cart
-          </button>
+          </div>
         </div>
+        }
 
-        <div className="space-y-6">
+        <div className="hidden lg:block space-y-6">
           {cartItems.map((item, index) => (
             <div
               key={`${item.product.id}-${item.selectedVariation?.color}-${index}`}
@@ -146,11 +149,104 @@ const Cart: React.FC = () => {
           ))}
         </div>
 
+
+        {/* Mobile Cart */}
+        <div className="lg:hidden space-y-6">
+          {cartItems.map((item, index) => (
+            <div
+              key={`${item.product.id}-${item.selectedVariation?.color}-${index}`}
+              className="flex flex-row items-center justify-between gap-4 shadow-md py-4 px-2 md:px-8 rounded-md"
+            >
+              <div className="">
+                <img
+                src={item.product.image[0]}
+                alt={item.product.name}
+                className="w-25 h-25 object-cover rounded-xl"
+              />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-medium">
+                  {item.quantity}× {item.product.name}
+                </p>
+                
+                <div className="text-sm">
+                  {item.selectedVariation && (
+                  <p className="text-sm text-gray-500">
+                    {item.selectedVariation.color} color
+                  </p>
+                )}
+                <p className="text-sm">(₦
+                {(
+                  item.product.Variation?.find(
+                    (v) => v.color === item.selectedVariation?.color
+                  )?.price ?? item.product.price
+                ).toLocaleString()}
+                )</p>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <button
+                    onClick={() =>
+                      updateQuantity(
+                        item.product.id,
+                        -1,
+                        item.selectedVariation
+                      )
+                    }
+                    className="border text-sm cursor-pointer border-red-600 px-2 rounded text-red-600 hover:bg-red-50"
+                  >
+                    -
+                  </button>
+                  <span>{item.quantity}</span>
+                  <button
+                    onClick={() =>
+                      updateQuantity(
+                        item.product.id,
+                        1,
+                        item.selectedVariation
+                      )
+                    }
+                    className="border text-sm cursor-pointer border-red-600 px-2 rounded text-red-600 hover:bg-red-50"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-8 justify-center items-center">
+                  <p className="text-red-700 text-sm font-bold mt-2 md:mt-0">
+                ₦
+                {(
+                  item.quantity *
+                  (item.product.Variation?.find(
+                    (v) => v.color === item.selectedVariation?.color
+                  )?.price ?? item.product.price)
+                ).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </p>
+
+              <button
+                onClick={() =>
+                  removeFromCart(item.product.id, item.selectedVariation)
+                }
+                className="flex items-center gap-2 text-sm text-red-600 border border-red-600 px-2 py-2 rounded-md cursor-pointer hover:text-red-800 transition-all"
+              >
+                <FaTrashAlt />
+              </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+
         {/* Footer buttons */}
         {cartItems.length > 0 ? (
-          <div className="mt-6 mb-5 flex flex-col md:flex-row gap-4 justify-center">
+          <div className="mt-6 mb-5 flex w-full gap-4 justify-center items-center">
             <Link to="/">
-              <button className="border px-8 py-3 rounded cursor-pointer hover:bg-gray-100 transition transform active:scale-90">
+              <button className="border-2 border-red text-red-800 font-semibold px-8 py-3 rounded cursor-pointer hover:bg-gray-100 transition transform active:scale-90">
                 Add Items
               </button>
             </Link>

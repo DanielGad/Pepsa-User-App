@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Footer from "../../components/Footer";
-import dayjs from "dayjs";
-import advancedFormat from "dayjs/plugin/advancedFormat";
 import { ClipLoader } from "react-spinners";
 import Order from "../../assets/images/order.png";
-
-dayjs.extend(advancedFormat);
+import { FaChevronDown, FaChevronUp, FaEye, FaPrint, FaTrashAlt } from "react-icons/fa";
+import Discount from "../../assets/images/discount.png"
 
 interface OrderItem {
   name: string;
@@ -14,7 +12,7 @@ interface OrderItem {
   quantity: number;
   image: string;
   orderId: number;
-  invoiceId: number;
+  invoiceId?: number;
   selectedVariation: {
     color: string;
     price: number;
@@ -23,7 +21,7 @@ interface OrderItem {
 
 interface Order {
   orderId: number;
-  invoiceId: number;
+  invoiceId?: number;
   deliveryMethod: string;
   deliveryFee: number;
   discount: number;
@@ -42,78 +40,107 @@ const Invoice: React.FC = () => {
   const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [Buttonloading, setButtonLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [tempOrder, setTempOrder] = useState<Order | null>(null);
+  const [showPaymentSummary, setShowPaymentSummary] = useState(false);
+
+  const togglePaymentSummary = () => {
+  setShowPaymentSummary(prev => !prev);
+};
+
 
   const Delivery = ["Vendor Delivery", "Self Pickup", "Pepsa Dispatch"];
   const Fee = [6000, 0, 5000];
 
-  useEffect(() => {  
-  if (!invoiceId) {
-    setError("Invoice ID is missing.");
-    setLoading(false);
-    return;
-  }
-
-  const invoiceIdNum = Number(invoiceId); // Convert to number
-  if (isNaN(invoiceIdNum)) {
-    setError("Invalid Invoice ID");
-    setLoading(false);
-    return;
-  }
-
-  const userId = localStorage.getItem("userId");
-  if (!userId) {
-    navigate("/login");
-    return;
-  }
-
-  fetch(`https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`)
-    .then((res) => {
-      if (!res.ok) throw new Error("Failed to fetch user");
-      return res.json();
-    })
-    .then((userData) => {
-      const orders: Order[] = userData.orders || [];
-      // console.log('Searching for:', invoiceIdNum);
-      // console.log('Available invoices:', orders.map(o => o?.invoiceId));
-      
-      // Robust find that handles undefined and type conversion
-      const foundOrder = orders.find(order => 
-        order?.invoiceId !== undefined && 
-        Number(order.invoiceId) === invoiceIdNum
-      );
-
-      if (!foundOrder) {
-        throw new Error(`Invoice #${invoiceIdNum} not found in your orders`);
-      }
-
-      const orderWithImages = {
-        ...foundOrder,
-        items: foundOrder.items.map(item => ({
-          ...item,
-          image: item.image || Order
-        }))
-      };
-
-      setOrder(orderWithImages);
-      setTempOrder(orderWithImages);
+  useEffect(() => {
+    if (!invoiceId) {
+      setError("Invoice ID is missing");
       setLoading(false);
-    })
-    .catch((err) => {
-      console.error("Error loading invoice:", err);
-      setError(err.message);
-      setLoading(false);
-    });
-}, [navigate, invoiceId]);
-
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-    if (isEditing) {
-      setTempOrder(order);
+      return;
     }
-  };
+
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      navigate("/login");
+      return;
+    }
+
+    const fetchOrderData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(
+          `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
+        );
+        
+        if (!response.ok) throw new Error("Failed to fetch user data");
+        
+        const userData = await response.json();
+        const orders: Order[] = userData.orders || [];
+        const targetId = Number(invoiceId);
+
+        // console.log("Searching for invoice:", targetId);
+        // console.log("Available orders:", orders.map(o => ({
+        //   orderId: o.orderId,
+        //   invoiceId: o.invoiceId,
+        //   status: o.status
+        // })));
+
+        // First try to find by invoiceId
+        let foundOrder = orders.find(o => o.invoiceId === targetId);
+
+        // If not found, try by orderId
+        if (!foundOrder) {
+          console.warn("No order found with invoiceId, trying orderId fallback");
+          foundOrder = orders.find(o => o.orderId === targetId);
+        }
+
+        if (!foundOrder) {
+          throw new Error(`No order found with ID: ${targetId}`);
+        }
+
+        // Verify the found order matches the requested ID
+        if (foundOrder.invoiceId !== targetId && foundOrder.orderId !== targetId) {
+          throw new Error("ID mismatch in found order");
+        }
+
+        const orderWithImages = {
+          ...foundOrder,
+          items: foundOrder.items.map(item => ({
+            ...item,
+            image: item.image || Order
+          }))
+        };
+
+        setOrder(orderWithImages);
+        setTempOrder(orderWithImages);
+      } catch (err) {
+        console.error("Error loading invoice:", err);
+        setError(err instanceof Error ? err.message : "Failed to load order");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderData();
+  }, [invoiceId, navigate]);
+
+  // Add ID verification before rendering
+  useEffect(() => {
+    if (order && invoiceId) {
+      const numericInvoiceId = Number(invoiceId);
+      if (order.invoiceId !== numericInvoiceId && order.orderId !== numericInvoiceId) {
+        console.error("ID MISMATCH DETECTED", {
+          urlInvoiceId: numericInvoiceId,
+          orderInvoiceId: order.invoiceId,
+          orderId: order.orderId
+        });
+        setError("Data mismatch detected - wrong order loaded");
+      }
+    }
+  }, [order, invoiceId]);
 
   const handleQuantityChange = (index: number, newQuantity: number) => {
     if (!tempOrder || newQuantity < 1) return;
@@ -193,10 +220,22 @@ const Invoice: React.FC = () => {
   };
 
   const handleSaveChanges = async () => {
-    if (!tempOrder) return;
+    if (!tempOrder || !invoiceId) return;
     
+    // Verify we're working with the correct invoice
+    const numericInvoiceId = Number(invoiceId);
+    if (tempOrder.invoiceId !== numericInvoiceId && tempOrder.orderId !== numericInvoiceId) {
+      setError("Cannot save - invoice mismatch detected");
+      console.error("Trying to save wrong invoice!", {
+        expected: numericInvoiceId,
+        actualInvoiceId: tempOrder.invoiceId,
+        actualOrderId: tempOrder.orderId
+      });
+      return;
+    }
+
     try {
-      setLoading(true);
+      setButtonLoading(true);
       setError(null);
   
       const userId = localStorage.getItem("userId");
@@ -205,7 +244,6 @@ const Invoice: React.FC = () => {
         return;
       }
   
-      // First, fetch the current user data
       const userResponse = await fetch(
         `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
       );
@@ -215,26 +253,24 @@ const Invoice: React.FC = () => {
       const userData = await userResponse.json();
       const orders: Order[] = userData.orders || [];
 
-      const generateOrderId = () => Math.floor(10000000 + Math.random() * 90000000);
-
+      // Find the existing order/invoice
+      const orderIndex = orders.findIndex(o => 
+        o.invoiceId === numericInvoiceId || o.orderId === numericInvoiceId
+      );
       
-      // Find the index of the order we're updating
-      const orderIndex = orders.findIndex(o => o.orderId === tempOrder.orderId);
       if (orderIndex === -1) throw new Error("Order not found in user data");
       
-      // Create the updated order with Processing status
       const updatedOrder = {
         ...tempOrder,
-        status: "Processing",
-        orderId: generateOrderId(),
-        updatedAt: new Date().toISOString() // Add update timestamp
+        orderId: tempOrder.orderId || numericInvoiceId, // Use existing orderId or invoiceId
+        status: "Paid",
+        updatedAt: new Date().toISOString(),
+        invoiceId: undefined // Remove invoiceId as it's now a proper order
       };
       
-      // Update the orders array
       const updatedOrders = [...orders];
       updatedOrders[orderIndex] = updatedOrder;
       
-      // Send the update to the server
       const updateResponse = await fetch(
         `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`,
         {
@@ -246,22 +282,62 @@ const Invoice: React.FC = () => {
       
       if (!updateResponse.ok) throw new Error("Failed to update order");
       
-      // Update local state
       setOrder(updatedOrder);
       setTempOrder(updatedOrder);
-      setIsEditing(false);
       
-      // Show success message
-      alert("Order Placed Successfully!");
-      navigate("/order-history")
+      // alert("Order placed successfully!");
+        navigate("/order-history");
+      handleDeleteInvoice();
     } catch (err) {
-      console.error("Failed to update order:", err);
-      setError("There was an error updating your order. Please try again.");
+      console.error("Failed to place order:", err);
+      setError(err instanceof Error ? err.message : "Failed to place order");
+    } finally {
+      setButtonLoading(false)
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteInvoice = async () => {
+
+    try {
+      setLoading(true);
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        navigate("/login");
+        return;
+      }
+
+      // Fetch current user data
+      const response = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`
+      );
+      const userData = await response.json();
+      
+      // Filter out the current invoice
+      const updatedOrders = userData.orders.filter(
+        (o: Order) => o.invoiceId !== Number(invoiceId) && o.orderId !== Number(invoiceId)
+      );
+
+      // Update user data
+      const updateResponse = await fetch(
+        `https://680ead7467c5abddd192c3df.mockapi.io/api/users/${userId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...userData, orders: updatedOrders }),
+        }
+      );
+
+      if (!updateResponse.ok) throw new Error("Failed to delete invoice");
+      
+      navigate("/order-history");
+    } catch (err) {
+      console.error("Error deleting invoice:", err);
+      setError("Failed to delete invoice");
     } finally {
       setLoading(false);
     }
   };
-  
 
   if (loading) {
     return (
@@ -273,33 +349,60 @@ const Invoice: React.FC = () => {
   }
 
   if (error) {
-    return <p className="text-center text-red-600 mt-10">{error}</p>;
+    return (
+      <div className="text-center mt-10">
+        <p className="text-red-600">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-red-100 rounded"
+        >
+          Refresh
+        </button>
+      </div>
+    );
   }
 
   if (!order || !tempOrder) {
     return <p className="text-center text-red-600 mt-10">Order not found</p>;
   }
 
+  // Final verification before render
+  const numericInvoiceId = Number(invoiceId);
+  if (order.invoiceId !== numericInvoiceId && order.orderId !== numericInvoiceId) {
+    return (
+      <div className="text-center mt-10">
+        <p className="text-red-600">Data mismatch detected</p>
+        <p>URL ID: {numericInvoiceId}</p>
+        <p>Order ID: {order.orderId}</p>
+        <p>Invoice ID: {order.invoiceId}</p>
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="flex justify-between px-4 md:px-20 bg-red-50 items-center py-4">
-        <img src={Order} alt="order" className="w-16 h-16 object-contain" />
-
-        <div className="flex flex-col justify-center">
-          <h2 className="font-semibold text-lg md:text-xl">Order ID: {tempOrder.orderId}</h2>
-          <p className="text-gray-500 text-sm md:text-lg">
-            {dayjs(tempOrder.createdAt).format("Do MMMM YYYY")}
-          </p>
+      <div className="lg:hidden mt-[-20px] mb-10 flex justify-center gap-2 text-sm bg-gray-200 py-1 relative">
+          <Link to={"/"}><span>Home</span></Link> &gt;
+          <Link to={"/account"}><span>My Account</span></Link> &gt;
+          <Link to={"/order-history"}><span>My Orders</span></Link> &gt;
+          <span>Invoice</span> 
         </div>
 
-        <p className="text-lg md:text-2xl font-semibold text-red-800">
-          {tempOrder.status}
-        </p>
+      <div className="flex justify-between mx-5 lg:mx-20 items-center lg:text-2xl text-xl">
+        <p className="font-semibold">Items</p>
+        <button
+            onClick={handleDeleteInvoice}
+            className="p-2 text-red-600 hover:text-red-800 transition-colors cursor-pointer font-semibold"
+            title="Clear Cart"
+            disabled={loading}
+          >
+            Clear cart
+          </button>
       </div>
       
       <div className="p-4 md:p-6 md:mx-20">
         <div key={tempOrder.orderId}>
-          <div className="space-y-6">
+          <div className="hidden lg:block space-y-6">
             {tempOrder.items.map((item, index) => {
               const totalPrice = item.selectedVariation.price * item.quantity;
 
@@ -317,8 +420,7 @@ const Invoice: React.FC = () => {
                     }}
                   />
                   <div className="text-center md:text-left">
-                    <p className="text-lg font-medium">
-                      {isEditing ? (
+                    <div className="text-lg font-medium">
                         <div className="flex items-center">
                           <button 
                             onClick={() => handleQuantityChange(index, item.quantity - 1)}
@@ -336,10 +438,7 @@ const Invoice: React.FC = () => {
                           </button>
                           <span className="ml-2">× {item.name}</span>
                         </div>
-                      ) : (
-                        `${item.quantity}× ${item.name}`
-                      )}
-                    </p>
+                    </div>
                     {item.selectedVariation && (
                       <p className="text-sm text-gray-500">
                         {item.selectedVariation.color} color
@@ -350,26 +449,98 @@ const Invoice: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-20">
                     <p className="text-red-700 font-bold mt-2 md:mt-0">
                       ₦{totalPrice.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </p>
-                    {isEditing && (
-                      <button 
-                        onClick={() => handleRemoveItem(index)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Remove
-                      </button>
-                    )}
+                      <button
+                      onClick={() => handleRemoveItem(index)}
+                      className="flex items-center gap-2 text-sm text-red-600 border border-red-600 px-2 py-2 rounded-md cursor-pointer hover:text-red-800 transition-all"
+                    >
+                      <FaTrashAlt />
+                    </button>
                   </div>
                 </div>
               );
             })}
           </div>
+
+
+          {/* Mobile view */}
+          <div className="lg:hidden space-y-6">
+            {tempOrder.items.map((item, index) => {
+              const totalPrice = item.selectedVariation.price * item.quantity;
+
+              return (
+                <div
+                    key={`${item.productId}-${item.selectedVariation?.color}-${index}`}
+                    className="flex flex-row items-center justify-between gap-4 shadow-md py-4 px-2 md:px-8 rounded-md"
+                  >
+                    <div className="">
+                      <img
+                      src={`/invoice/${item.image || Order}`}
+                      alt={item.name}
+                      className="w-25 h-25 object-cover rounded-xl"
+                    />
+                    </div>
+      
+                    <div className="flex flex-col gap-1">
+                      <p className="text-sm font-medium">
+                        {item.quantity}× {item.name}
+                      </p>
+                      
+                      <div className="text-sm">
+                        {item.selectedVariation && (
+                        <p className="text-sm text-gray-500">
+                          {item.selectedVariation.color} color
+                        </p>
+                      )}
+                      <p className="text-sm">(₦
+                      {item.selectedVariation.price.toLocaleString()}
+                      )</p>
+                      </div>
+      
+                      <div className="flex items-center gap-2 text-sm">
+                        <button
+                          onClick={() => handleQuantityChange(index, item.quantity - 1)}
+                          className="border text-sm cursor-pointer border-red-600 px-2 rounded text-red-600 hover:bg-red-50"
+                          disabled={item.quantity <= 1}
+                        >
+                          -
+                        </button>
+                        <span>{item.quantity}</span>
+                        <button
+                          onClick={() => handleQuantityChange(index, item.quantity + 1)}
+                          className="border text-sm cursor-pointer border-red-600 px-2 rounded text-red-600 hover:bg-red-50"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+      
+                    <div className="flex flex-col gap-8 justify-center items-center">
+                        <p className="text-red-700 text-sm font-bold mt-2 md:mt-0">
+                      ₦{totalPrice.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+      
+                    <button
+                      onClick={() => handleRemoveItem(index)}
+                      className="flex items-center gap-2 text-sm text-red-600 border border-red-600 px-2 py-2 rounded-md cursor-pointer hover:text-red-800 transition-all"
+                    >
+                      <FaTrashAlt />
+                    </button>
+                    </div>
+                  </div>
+              );
+            })}
+          </div>
+
 
           <div className="mt-10 flex flex-col md:flex-row justify-between gap-10 px-2 md:px-5">
             <div className="flex flex-col gap-5 text-gray-600 w-full md:w-3/5 shadow-xl p-5 rounded-xl">
@@ -383,9 +554,8 @@ const Invoice: React.FC = () => {
                     checked={tempOrder.deliveryMethod === v}
                     onChange={() => handleDeliveryChange(v)}
                     className="accent-red-600"
-                    disabled={!isEditing}
                   />
-                  <span className="w-3/9">{v}</span>
+                  <span className="w-full lg:w-3/9">{v}</span>
                   <span className="ml-6 text-sm text-left">
                     ₦{Fee[i].toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </span>
@@ -393,81 +563,112 @@ const Invoice: React.FC = () => {
               ))}
             </div>
 
-            <div className="w-full md:w-3/5 flex flex-col gap-5 shadow-xl p-5 rounded-xl">
-              <h2 className="text-2xl font-semibold text-gray-600">Payment Summary</h2>
-              <div className="flex justify-between text-gray-600">
-                <p>Subtotal:</p>
-                <p className="font-semibold">
-                  ₦{tempOrder.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </p>
+            <div className="w-full md:w-3/5 flex flex-col gap-5 shadow-xl p-5 rounded-xl" >
+              <div className="flex flex-col gap-5 shadow-xl p-5 rounded-xl" onClick={togglePaymentSummary}>
+                  <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold text-gray-600">Payment Summary</h2>
+              {showPaymentSummary ? (
+                <FaChevronUp className="text-gray-600" />
+              ) : (
+                <FaChevronDown className="text-gray-600" />
+              )}
               </div>
-              <div className="flex justify-between text-gray-600">
-                <p>Discount:</p>
-                <p className="font-semibold">
-                  -₦{tempOrder.discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <p>VAT(0%):</p>
-                <p className="font-semibold">
-                  ₦{tempOrder.vat.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <p>Delivery Fee:</p>
-                <p className="font-semibold">
-                  ₦{tempOrder.deliveryFee.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <p>Service Fee:</p>
-                <p className="font-semibold">
-                  ₦{tempOrder.serviceFee.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </p>
-              </div>
+              {showPaymentSummary && (
+              <><div className="flex justify-between text-gray-600">
+                  <p>Subtotal:</p>
+                  <p className="font-semibold">
+                    ₦{tempOrder.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </p>
+                </div><div className="flex justify-between text-gray-600">
+                    <p>Discount:</p>
+                    <p className="font-semibold">
+                      -₦{tempOrder.discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                  </div><div className="flex justify-between text-gray-600">
+                    <p>VAT(0%):</p>
+                    <p className="font-semibold">
+                      ₦{tempOrder.vat.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                  </div><div className="flex justify-between text-gray-600">
+                    <p>Delivery Fee:</p>
+                    <p className="font-semibold">
+                      ₦{tempOrder.deliveryFee.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                  </div><div className="flex justify-between text-gray-600">
+                    <p>Service Fee:</p>
+                    <p className="font-semibold">
+                      ₦{tempOrder.serviceFee.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                  </div></>
+              )}
               <div className="flex justify-between text-md text-gray-800 font-semibold">
-                <p>Total Amount:</p>
-                <p>
-                  ₦{tempOrder.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </p>
+                    <p>Total Amount:</p>
+                    <p>
+                      ₦{tempOrder.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
               </div>
+
+                <div className="relative flex items-center">
+                  <img src={Discount} alt="Discount Icon" className="w-6 absolute left-3" />
+                  <input
+                    type="text"
+                    placeholder="Apply Discount Code"
+                    className="w-full pl-10 text-center py-3 bg-red-100 rounded-xl uppercase"
+                  />
+                </div>
             </div>
+            
+            <div className="pt-4 lg:w-1/2 p-5 rounded-2xl shadow-md">
+                <h3 className="text-xl font-semibold text-red-700 mb-4">Transaction Terms</h3>
+                <div className="space-y-3 text-sm text-gray-800">
+                  {/* Terms and Conditions */}
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <span className="text-lg">Terms and Conditions</span>
+                    <FaEye className="text-gray-600 cursor-pointer" />
+                  </div>
+  
+                  {/* Delivery Details */}
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <span className="text-lg">Delivery Details</span>
+                    <FaEye className="text-gray-600 cursor-pointer" />
+                  </div>
+  
+                  {/* Payment Details */}
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <span className="text-lg">Payment Details</span>
+                    <FaEye className="text-gray-600 cursor-pointer" />
+                  </div>
+  
+                  {/* Order Status */}
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <span className="text-lg">Order Status</span>
+                    <FaChevronDown className="text-gray-600 cursor-pointer" />
+                  </div>
+  
+                  {/* Print Details */}
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <span className="text-lg">Print Details</span>
+                    <FaPrint className="text-gray-600 cursor-pointer" />
+                  </div>
+                </div>
+                </div>
           </div>
         </div>
 
         {/* Buttons moved to bottom */}
         <div className="mt-10 flex flex-col md:flex-row justify-center gap-4">
-          {isEditing ? (
-            <div className="flex flex-col gap-5">
-              <button
-                onClick={handleSaveChanges}
-                className="px-20 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 text-lg font-medium cursor-pointer"
-              >
-                  Place Order
-                </button>
-              <button 
-                onClick={handleEditToggle}
-                className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-lg font-medium"
-              >
-                Cancel Changes
-              </button>
-            </div>
-          ) : (
             <div className="flex flex-col gap-4">
               <button
                 onClick={handleSaveChanges}
-                className="px-20 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 text-lg font-medium cursor-pointer"
+                className={`px-20 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 text-lg font-medium ${
+                  Buttonloading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                }`}
+                disabled={Buttonloading}
               >
-                  Place Order
-                </button>
-            <button
-                onClick={handleEditToggle}
-                className="px-6 py-3 text-red-700 rounded-lg hover:text-gray-700 text-lg font-medium cursor-pointer"
-              >
-                Edit Order
+                {Buttonloading ? <ClipLoader size={20} color="#FFFFFF" />  : "Place Order"}
               </button>
                 </div>
-          )}
         </div>
       </div>
       <Footer />

@@ -7,10 +7,10 @@ import ProductDetails from './pages/ProductDetails';
 import Categories from './pages/Categories';
 import Cart from './pages/Cart';
 import { useEffect, useState } from 'react';
-import MobileCart from './pages/MobileCart';
+// import MobileCart from './pages/MobileCart';
 import ScrollToTop from './util/ScrollToTop';
 import Checkout from './pages/Checkout';
-import MobileCheckout from './pages/MobileCheckout';
+// import MobileCheckout from './pages/MobileCheckout';
 import DeliveryRequest from './pages/DeliveryRequest';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -49,8 +49,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/categories" element={<Categories />} />
-          <Route path="/cart" element={isMobile ? <MobileCart /> : <Cart />} />
-          <Route path="/checkout" element={isMobile ? <MobileCheckout /> : <Checkout />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="delivery-request" element={<DeliveryRequest />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Register />} />

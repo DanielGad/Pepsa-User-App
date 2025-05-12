@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
-import Bag from "../assets/images/bags.png";
 import Footer from "../components/Footer";
 
 interface OrderItem {
@@ -118,7 +117,8 @@ const OrderHistory: React.FC = () => {
       <div className="lg:p-6 lg:mx-20 mb-10">
         <div className="lg:hidden mt-[-20px] mb-10 flex justify-center gap-2 text-sm bg-gray-200 py-1 relative">
           <Link to={"/"}><span>Home</span></Link> &gt;
-          <Link to={"/account"}><span>My Account</span></Link>
+          <Link to={"/account"}><span>My Account</span></Link> &gt;
+          <Link to={"/order-history"}><span>My Orders</span></Link>
         </div>
 
         <h1 className="hidden lg:block text-2xl font-semibold">Order History</h1>
@@ -153,10 +153,10 @@ const OrderHistory: React.FC = () => {
                 }}
 
               >
-                <div className="p-6 border-2 border-gray-200 rounded-lg hover:shadow-xl">
+                <div className="hidden lg:block p-6 border-2 border-gray-200 rounded-lg hover:shadow-xl">
                   <div className="grid lg:flex gap-5">
                     <div className="lg:w-1/2 w-2/2">
-                      <img src={Bag} alt="bag" className="w-40 h-auto rounded-2xl" />
+                      <img src={order.items[0]?.image} alt="bag" className="w-40 h-auto rounded-2xl" />
                     </div>
 
                     <div>
@@ -166,13 +166,13 @@ const OrderHistory: React.FC = () => {
                         <span className="font-medium"></span>{" "}
                         {formatFullDate(order.createdAt)}
                       </p>
-
+{/* 
                       {order.updatedAt && (
                         <p className="text-gray-500 text-sm">
                           <span className="font-medium">{order.status}:</span>{" "}
                           {formatFullDate(order.updatedAt)}
                         </p>
-                      )}
+                      )} */}
 
                       <p className="text-gray-500 text-sm">
                         <span className="font-medium">Items:</span>{" "}
@@ -215,6 +215,80 @@ const OrderHistory: React.FC = () => {
                   </div>
 
                   <p className={`mt-2 font-semibold text-red-800`}>
+                    {order.status}
+                    {order.status.toLowerCase() === "delivered" && order.deliveryDate && (
+                      <>
+                        {" on "}
+                        {formatFullDate(order.deliveryDate)}
+                      </>
+                    )}
+                  </p>
+                </div>
+
+
+                {/* Mobile view */}
+                <div className="lg:hidden p-6 border-2 border-gray-200 rounded-lg hover:shadow-xl">
+                  <div className="flex lg:flex gap-5">
+                    <div className="">
+                      <img src={order.items[0]?.image} alt="bag" className="w-30 h-auto rounded-xl" />
+                    </div>
+
+                    <div className="">
+                      <h1 className="font-bold text-xl">Diadem Luxury</h1>
+
+                      <p className="text-gray-500 text-sm">
+                        <span className="font-medium"></span>{" "}
+                        {formatFullDate(order.createdAt)}
+                      </p>
+
+                      {/* {order.updatedAt && (
+                        <p className="text-gray-500 text-sm">
+                          <span className="font-medium">{order.status}:</span>{" "}
+                          {formatFullDate(order.updatedAt)}
+                        </p>
+                      )} */}
+
+                      <p className="text-gray-500 text-sm">
+                        <span className="font-medium">Items:</span>{" "}
+                        {(() => {
+                          const firstTwoItems = order.items.slice(0, 2);
+                          const remainingCount = order.items.length - 2;
+
+                          const itemText = firstTwoItems.map((item) => {
+                            const quantity = item.quantity;
+                            const color = item.selectedVariation?.color || "unknown";
+                            const name = item.name;
+                            return `${quantity}pcs of ${color} ${name}`;
+                          }).join(", ");
+
+                          return (
+                            <>
+                              {itemText}
+                              {remainingCount > 0 && ` and ${remainingCount} other item${remainingCount > 1 ? "s" : ""}`}
+                            </>
+                          );
+                        })()}
+                      </p>
+
+                      <p className="text-gray-500 text-sm">
+                        <span className="font-medium">Delivery Method:</span>{" "}
+                        {order.deliveryMethod}
+                      </p>
+
+                      <p>
+                        <span className="font-medium">Total:</span> ₦
+                        {order.total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-black font-semibold mt-3">
+                    Order ID: {order.orderId || ""}
+                  </div>
+
+                  <p className={`mt-2 font-semibold text-md text-red-800`}>
                     {order.status}
                     {order.status.toLowerCase() === "delivered" && order.deliveryDate && (
                       <>
