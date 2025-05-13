@@ -1,6 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
+import { FaEdit } from "react-icons/fa"
+import Footer from '../components/Footer';
 
 interface UserProfile {
   id: string;
@@ -74,7 +76,7 @@ const MobileAccDetails = () => {
     const timer = setTimeout(() => {
       if (error) setError(null);
       if (success) setSuccess(null);
-    }, 3000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [error, success]);
 
@@ -282,18 +284,19 @@ const MobileAccDetails = () => {
               disabled={saving}
               className="w-full bg-red-700 hover:bg-red-800 text-white text-lg font-semibold py-3 rounded-lg transition disabled:opacity-50 mb-4"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? `Saving...` : "Save"}
             </button>
           ) : (
             <button
               onClick={handleEditToggle}
-              className="w-full bg-red-700 hover:bg-red-800 text-white text-lg font-semibold py-3 rounded-lg transition mb-4"
+              className="flex justify-center items-center gap-1 w-full bg-red-700 hover:bg-red-800 text-white text-lg font-semibold py-3 rounded-lg transition mb-4"
             >
-              Edit Profile
+             <FaEdit /> Edit Profile
             </button>
           )}
         </div>
       </div>
+      <Footer />
     </section>
   );
 };

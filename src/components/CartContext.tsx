@@ -197,9 +197,23 @@ const iconMap = {
   info: <FaExclamationCircle className="text-yellow-500" />,
 };
 
+const bgIcon = {
+  loading: "bg-blue-100",
+  success: "bg-green-100",
+  error: "bg-red-100",
+  info: "bg-yellow-100"
+};
+
+const bgBorder = {
+  loading: "border-blue-500",
+  success: "border-green-500",
+  error: "border-red-500",
+  info: "border-yellow-500"
+};
+
 const SpinnerMessage = ({ type, message }: { type: SpinnerType; message: string }) => (
   <div className="fixed top-4 right-4 z-[9999]">
-    <div className="flex items-center space-x-2 bg-white border rounded-md shadow-lg px-4 py-2 min-w-[250px] max-w-sm">
+    <div className ={`flex items-center space-x-2 border ${bgIcon[type]} ${bgBorder[type]} rounded-md shadow-lg px-4 py-2 lg:w-[250px]`}>
       {iconMap[type]}
       <span className="text-gray-800 text-sm flex-1">{message}</span>
     </div>

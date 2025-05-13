@@ -27,7 +27,7 @@ const ChangePasswordModal = ({
     const timer = setTimeout(() => {
       setError(null);
       setSuccess(null);
-    }, 4000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [error, success]);
@@ -79,7 +79,7 @@ const ChangePasswordModal = ({
 
       setTimeout(() => {
         onClose();
-      }, 1500);
+      }, 1000);
     } catch (error) {
       console.error("Password change error:", error);
       setError("An unexpected error occurred. Please try again.");

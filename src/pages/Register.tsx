@@ -53,7 +53,7 @@ const Register: React.FC = () => {
       const timer = setTimeout(() => {
         setError(null);
         setSuccess(null);
-      }, 3000);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [error, success]);
@@ -138,7 +138,7 @@ const Register: React.FC = () => {
       if (!postRes.ok) throw new Error("Registration failed");
 
       setSuccess("Registration successful!");
-      setTimeout(() => navigate("/account"), 1500);
+      setTimeout(() => navigate("/account"), 1000);
     } catch (err: unknown) {
       console.error(err);
       setError((err as Error).message || "Registration failed. Please try again.");

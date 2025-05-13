@@ -226,7 +226,7 @@ const MyAccount: React.FC = () => {
     const timer = setTimeout(() => {
       setError(null);
       setSuccess(null);
-    }, 5000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [error, success]);
 

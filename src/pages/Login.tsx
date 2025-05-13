@@ -24,7 +24,7 @@ const Login: React.FC = () => {
       const t = setTimeout(() => {
         setError(null);
         setSuccess(null);
-      }, 3000);
+      }, 2000);
       return () => clearTimeout(t);
     }
   }, [error, success]);
@@ -173,7 +173,7 @@ const Login: React.FC = () => {
           {loading ? "Logging in…" : "Login"}
         </button>
 
-        <p className="text-center text-sm text-gray-700">
+        <p className="text-center text-lg text-gray-700">
           Don't have an account?{" "}
           <Link to="/signup" className="text-red-600 hover:underline">
             Sign up
