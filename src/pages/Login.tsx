@@ -46,7 +46,7 @@ const Login: React.FC = () => {
       lookup
     )}`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error("Network error");
+    if (!res.ok) throw new Error(`No account found with this ${isEmail ? "email address" : "phone number"}`);
 
     // strongly type JSON
     const users: User[] = await res.json();
@@ -59,7 +59,7 @@ const Login: React.FC = () => {
 
     if (!matched) {
       throw new Error(
-        `No account found with this ${isEmail ? "email" : "phone"}`
+        `No account found with this ${isEmail ? "email address" : "phone number"}`
       );
     }
 

@@ -18,11 +18,6 @@ export const getUserId = (): string | null => {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const isLoggedIn = (): boolean => {
-  return !!localStorage.getItem("userId");
-};
-
-// eslint-disable-next-line react-refresh/only-export-components
 export const logoutUser = () => {
   localStorage.removeItem("userId");
 };

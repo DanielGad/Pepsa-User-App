@@ -53,7 +53,7 @@ const Register: React.FC = () => {
       const timer = setTimeout(() => {
         setError(null);
         setSuccess(null);
-      }, 1000);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [error, success]);
@@ -272,7 +272,7 @@ const Register: React.FC = () => {
           {loading ? "Signing up..." : "Sign up"}
         </button>
 
-        <p className="mt-6 text-center text-sm text-gray-700">
+        <p className="mt-6 mb-20 text-center text-lg text-gray-700">
           Already have an account?{" "}
           <Link to="/login" className="text-red-600 hover:underline">
             Login

@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { getUserId, logoutUser } from "../components/CartContext";
 import { useNavigate } from "react-router-dom";
 
-const INACTIVITY_LIMIT = 0.5 * 60 * 1000; // 5 minutes
+const INACTIVITY_LIMIT = 1 * 60 * 1000;
 
 const useAutoLogout = () => {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
