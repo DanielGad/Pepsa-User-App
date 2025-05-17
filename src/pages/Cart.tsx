@@ -3,9 +3,11 @@ import { getUserId, useCart } from "../components/CartContext";
 import Footer from "../components/Footer";
 import { FaSpinner, FaTrashAlt } from "react-icons/fa";
 import { useState } from "react";
+import { useSpinner } from "../components/CartContext";
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
+  const { showSpinner } = useSpinner()
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
   const [ confirming, setConfirming ] = useState(false)
 
@@ -38,6 +40,18 @@ const Cart: React.FC = () => {
       // 4) All good: go to checkout
       navigate("/checkout");
     } catch (err) {
+          const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      showSpinner("error", "No internet connection");
+    } else {
+      showSpinner("error", `${message || "Login failed"}`);
+    }
       console.error("Error during confirmation check:", err);
       // Fallback to login if something goes wrong
       navigate("/login");

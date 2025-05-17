@@ -64,8 +64,19 @@ const OrderHistory: React.FC = () => {
         setLoading(false);
       })
       .catch((err) => {
+            const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection, please try again.");
+    } else {
+      setError(message || "Failed to fetch");
+    }
         console.error(err);
-        setError("No internet connection, Kindly check your internet and try again");
         setLoading(false);
       });
   }, [navigate]);

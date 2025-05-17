@@ -83,6 +83,18 @@ useEffect(() => {
       setLoading(false);
     })
     .catch((err) => {
+          const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection, please try again.");
+    } else {
+      setError(message || "Error in loading orders");
+    }
       console.error("Error loading order:", err);
       setError("Could not load order details.");
       setLoading(false);

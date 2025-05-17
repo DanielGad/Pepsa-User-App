@@ -28,15 +28,8 @@ const DeliveryRequest = () => {
     itemDetails: "",
   });
 
-  useEffect(() => {
-    const userId = getUserId();
-    if (!userId) {
-      navigate("/login");
-      return;
-    }
-    fetchUserProfile(userId);
-  }, [navigate]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchUserProfile = async (userId: string) => {
     try {
       setSaving(true);
@@ -57,11 +50,32 @@ const DeliveryRequest = () => {
         itemDetails: "",
       });
     } catch (err) {
+          const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      showSpinner("error", "No internet connection");
+    } else {
+      showSpinner("error", `${message || "Login failed"}`);
+    }
       console.error("Error fetching user profile:", err);
     } finally {
       setSaving(false);
     }
   };
+  
+  useEffect(() => {
+    const userId = getUserId();
+    if (!userId) {
+      navigate("/login");
+      return;
+    }
+    fetchUserProfile(userId);
+  }, [fetchUserProfile, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

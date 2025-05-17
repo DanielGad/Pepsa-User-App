@@ -106,6 +106,9 @@ const Register: React.FC = () => {
 
     setLoading(true);
     try {
+      if (!navigator.onLine) {
+      throw new Error("No internet connection");
+    }
       const exists = await checkExisting(email, phone);
       if (exists === "email") {
         setError("An account with this email already exists.");
@@ -141,8 +144,19 @@ const Register: React.FC = () => {
       setTimeout(() => navigate("/account"), 1000);
     } catch (err: unknown) {
       console.error(err);
-      setError((err as Error).message || "Registration failed. Please try again.");
-    } finally {
+    const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection");
+    } else {
+      setError(message || "Registration failed");
+    }    
+  } finally {
       setLoading(false);
     }
   };

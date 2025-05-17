@@ -32,6 +32,8 @@ const MobileAccount: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+ 
+
   // Check if user is logged in and fetch profile
   useEffect(() => {
     const userId = getUserId();;
@@ -55,8 +57,19 @@ const MobileAccount: React.FC = () => {
         setUser(userData);
         setCurrentHashedPassword(userData.password || "");
       } catch (err) {
+        const message = (err as Error).message;
+
+        if (
+          message.includes("Failed to fetch") ||
+          message.includes("ERR_NAME_NOT_RESOLVED") ||
+          message.includes("NetworkError") ||
+          message.includes("No internet")
+        ) {
+          setError("No internet connection");
+        } else {
+          setError(message || "Failed to load user profile");
+        }
         console.error("Error fetching user profile:", err);
-        setError("Failed to load user profile");
       } finally {
         setLoading(false);
       }
@@ -89,6 +102,18 @@ const MobileAccount: React.FC = () => {
 
       setCurrentHashedPassword(newHashedPassword);
     } catch (err) {
+          const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection, please try again.");
+    } else {
+      setError(message || "Password update Failed");
+    }
       console.error("Password update failed", err);
       throw err;
     }

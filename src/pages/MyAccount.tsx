@@ -77,8 +77,19 @@ const MyAccount: React.FC = () => {
         houseNo: userData.houseNo || "",
       });
     } catch (err) {
+          const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection, please try again.");
+    } else {
+      setError(message || "Failed to load user profile");
+    }
       console.error("Error fetching user profile:", err);
-      setError("Failed to load user profile");
     } finally {
       setLoading(false);
     }
@@ -193,12 +204,19 @@ const MyAccount: React.FC = () => {
       setSuccess("Profile updated successfully!");
       setIsEditing(false);
     } catch (err) {
+          const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection, please try again.");
+    } else {
+      setError(message || "Update failed");
+    }
       console.error("Update failed", err);
-      setError(
-        err instanceof Error 
-          ? err.message 
-          : "Failed to update profile. Please try again."
-      );
     } finally {
       setSaving(false);
     }
@@ -225,13 +243,13 @@ const MyAccount: React.FC = () => {
   };
 
   // Auto-dismiss messages
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setError(null);
-      setSuccess(null);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [error, success]);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setError(null);
+  //     setSuccess(null);
+  //   }, 2000);
+  //   return () => clearTimeout(timer);
+  // }, [error, success]);
 
   if (loading) {
     return (
@@ -242,10 +260,10 @@ const MyAccount: React.FC = () => {
     );
   }
 
-  if (!user) {
+  if (error || !user) {
     return (
       <div className="text-center py-10">
-        <p className="text-red-600 mb-4">Failed to fetch user profile</p>
+        <p className="text-red-600 mb-4">{error || "Failed to fetch user profile"}</p>
         <button
           onClick={() => window.location.reload()}
           className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"

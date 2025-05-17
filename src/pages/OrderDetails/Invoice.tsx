@@ -131,6 +131,18 @@ const Invoice: React.FC = () => {
         setOrder(orderWithImages);
         setTempOrder(orderWithImages);
       } catch (err) {
+            const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection, please try again.");
+    } else {
+      setError(message || "Error loading invoice");
+    }
         console.error("Error loading invoice:", err);
         setError(err instanceof Error ? err.message : "Failed to load order");
       } finally {
@@ -304,6 +316,18 @@ const Invoice: React.FC = () => {
         navigate("/order-history");
       handleDeleteInvoice();
     } catch (err) {
+          const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection");
+    } else {
+      setError(message || "Failed to place order");
+    }
       console.error("Failed to place order:", err);
       setError(err instanceof Error ? err.message : "Failed to place order");
     } finally {
@@ -347,6 +371,18 @@ const Invoice: React.FC = () => {
       
       navigate("/order-history");
     } catch (err) {
+          const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection");
+    } else {
+      setError(message || "Error deleting order");
+    }
       console.error("Error deleting invoice:", err);
       setError("Failed to delete invoice");
     } finally {

@@ -117,6 +117,18 @@ const Checkout = () => {
       setTimeout(() => navigate("/order-history"), 1000);
       clearCart();
     } catch (error) {
+    const message = (error as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection");
+    } else {
+      setError(message || "Login failed");
+    }
       console.error("Failed to place order:", error);
       setError("There was an error placing your order.");
     } finally {
@@ -193,6 +205,18 @@ const Checkout = () => {
       clearCart();
     } catch (error) {
       console.error("Failed to place order:", error);
+      const message = (error as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection");
+    } else {
+      setError(message || "Login failed");
+    }
       setSuccess("There was an error placing your order.");
     } finally {
       setLoadingInvoice(false);
@@ -206,15 +230,15 @@ const Checkout = () => {
     <>
       <div className="p-4 md:p-6 lg:mx-20">
          {success && (
-                <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded flex items-center gap-2 z-50">
-                  <FaCheckCircle /> {success}
-                </div>
-              )}
-              {error && (
-                <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center gap-2 z-50">
-                  <FaExclamationCircle /> {error}
-                </div>
-              )}
+          <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded flex items-center gap-2 z-50">
+            <FaCheckCircle /> {success}
+          </div>
+        )}
+        {error && (
+          <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center gap-2 z-50">
+            <FaExclamationCircle /> {error}
+          </div>
+        )}
         {
           cartItems.length === 0 ? "" : 
           <div className="flex md:flex-row items-center justify-between mb-4 px-2 md:px-5">

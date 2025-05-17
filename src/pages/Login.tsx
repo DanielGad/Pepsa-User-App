@@ -86,13 +86,28 @@ const Login: React.FC = () => {
 
     setLoading(true);
     try {
+      
+      if (!navigator.onLine) {
+      throw new Error("No internet connection");
+    }
       const user = await authenticateUser(identifier, password);
       setUserId(user.id)
       setSuccess("Login successful!");
       setTimeout(() => navigate("/account"), 500);
     } catch (err: unknown) {
       console.error(err);
-      setError((err as Error).message || "Login failed");
+      const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection");
+    } else {
+      setError(message || "Login failed");
+    }
     } finally {
       setLoading(false);
     }

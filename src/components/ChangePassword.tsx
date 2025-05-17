@@ -81,6 +81,18 @@ const ChangePasswordModal = ({
         onClose();
       }, 1000);
     } catch (error) {
+          const message = (error as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection");
+    } else {
+      setError(message || "Failed to update");
+    }
       console.error("Password change error:", error);
       setError("An unexpected error occurred. Please try again.");
     } finally {

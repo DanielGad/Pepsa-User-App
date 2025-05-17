@@ -64,8 +64,19 @@ const MobileAccDetails = () => {
           houseNo: userData.houseNo || "",
         });
       } catch (err) {
+      const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection, please try again.");
+    } else {
+      setError(message || "Failed to load user profile");
+    }
         console.error("Error fetching user profile:", err);
-        setError("Failed to load user profile");
       } finally {
         setLoading(false);
       }
@@ -122,8 +133,19 @@ const MobileAccDetails = () => {
       setSuccess("Profile updated successfully!");
       setIsEditing(false);
     } catch (err) {
+          const message = (err as Error).message;
+
+    if (
+      message.includes("Failed to fetch") ||
+      message.includes("ERR_NAME_NOT_RESOLVED") ||
+      message.includes("NetworkError") ||
+      message.includes("No internet")
+    ) {
+      setError("No internet connection, please try again.");
+    } else {
+      setError(message || "Failed to update profile");
+    }
       console.error("Update failed", err);
-      setError("Failed to update profile. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -144,7 +166,7 @@ const MobileAccDetails = () => {
     );
   }
 
-  if (!user) {
+  if (error || !user) {
     return (
       <div className="text-center py-10 lg:hidden">
         <p className="text-red-600 mb-4">
