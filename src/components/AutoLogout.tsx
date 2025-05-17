@@ -3,7 +3,7 @@ import { getUserId, logoutUser } from "../components/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useSpinner } from "../components/CartContext";
 
-const INACTIVITY_LIMIT = 0.5 * 60 * 1000;
+const INACTIVITY_LIMIT = 3 * 60 * 1000;
 
 const useAutoLogout = () => {
 const { showSpinner } = useSpinner();
@@ -14,7 +14,7 @@ const { showSpinner } = useSpinner();
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(() => {
-      const userId = getUserId(); // recheck user ID when timeout triggers
+      const userId = getUserId(); 
       if (userId) {
         logoutUser();
         showSpinner("error", "Session Timed Out!")
