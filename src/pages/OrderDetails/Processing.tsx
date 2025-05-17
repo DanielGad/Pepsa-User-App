@@ -4,6 +4,8 @@ import Footer from "../../components/Footer";
 import { ClipLoader } from "react-spinners";
 import Order from "../../assets/images/order.png"
 import { FaChevronDown, FaChevronUp, FaEye, FaPrint } from "react-icons/fa";
+import { getUserId } from "../../components/CartContext";
+import useAutoLogout from "../../components/AutoLogout";
 
 interface OrderItem {
   name: string;
@@ -33,6 +35,7 @@ interface Order {
 }
 
 const Processing: React.FC = () => {
+  useAutoLogout()
    const { orderId } = useParams<{ orderId: string }>();
    const navigate = useNavigate();
    const [order, setOrder] = useState<Order | null>(null);
@@ -54,7 +57,7 @@ useEffect(() => {
     return;
   }
 
-  const userId = localStorage.getItem("userId");
+  const userId = getUserId();
   if (!userId) {
     navigate("/login");
     return;

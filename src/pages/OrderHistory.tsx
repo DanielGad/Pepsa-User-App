@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 import Footer from "../components/Footer";
+import { getUserId } from "../components/CartContext";
+import useAutoLogout from "../components/AutoLogout";
 
 interface OrderItem {
   name: string;
@@ -31,13 +33,14 @@ interface Order {
 }
 
 const OrderHistory: React.FC = () => {
+  useAutoLogout()
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    const userId = getUserId();
     if (!userId) {
       navigate("/login");
       return;

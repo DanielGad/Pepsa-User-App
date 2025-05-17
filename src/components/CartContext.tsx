@@ -1,4 +1,3 @@
-// context/CartAndSpinnerContext.tsx
 import {
   createContext,
   useContext,
@@ -7,6 +6,27 @@ import {
   ReactNode,
 } from "react";
 import { FaSpinner, FaCheckCircle, FaTimes, FaExclamationCircle } from "react-icons/fa";
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const setUserId = (userId: string) => {
+  localStorage.setItem("userId", userId);
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const getUserId = (): string | null => {
+  return localStorage.getItem("userId");
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const isLoggedIn = (): boolean => {
+  return !!localStorage.getItem("userId");
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const logoutUser = () => {
+  localStorage.removeItem("userId");
+};
+
 
 // ------------------ Spinner Context Types & Setup ------------------
 
@@ -54,7 +74,7 @@ type CartContextType = {
     selectedVariation?: { color: string; price: number },
     quantity?: number,
   ) => void;
-    addToCartFromHome: (product: Product) => void; // ✅ Added this
+    addToCartFromHome: (product: Product) => void; 
   removeFromCart: (
     productId: number,
     selectedVariation?: { color: string; price: number }
@@ -80,7 +100,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const showSpinner = (type: SpinnerType, message: string) => {
     setSpinner({ visible: true, type, message });
-    setTimeout(() => setSpinner(s => ({ ...s, visible: false })), 500);
+    setTimeout(() => setSpinner(s => ({ ...s, visible: false })), 1000);
   };
 
   const hideSpinner = () => setSpinner(s => ({ ...s, visible: false }));

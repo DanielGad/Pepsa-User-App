@@ -4,7 +4,8 @@ import { FaBars, FaTimes, FaSearch, FaChevronRight } from 'react-icons/fa';
 import DiademLogo from '../assets/images/diadem-luxury-logo.png';
 import AccountIcon from "../assets/images/account-icon.png";
 import CartIcon from "../assets/images/cart-icon.png";
-import { useCart } from "./CartContext"; // adjust the path if needed
+import { getUserId, useCart } from "./CartContext"; // adjust the path if needed
+import useAutoLogout from './AutoLogout';
 
 
 const Navbar = () => {
@@ -16,11 +17,13 @@ const Navbar = () => {
 
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       
       const authLink = userId
   ? { label: 'My Account', path: '/account' }
   : { label: 'Login', path: '/login' };
+
+  useAutoLogout()
 
 
 

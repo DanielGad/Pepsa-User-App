@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
 import { FaEdit } from "react-icons/fa"
 import Footer from '../components/Footer';
+import { getUserId } from '../components/CartContext';
+import useAutoLogout from '../components/AutoLogout';
 
 interface UserProfile {
   id: string;
@@ -15,6 +17,7 @@ interface UserProfile {
 }
 
 const MobileAccDetails = () => {
+  useAutoLogout()
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -33,7 +36,7 @@ const MobileAccDetails = () => {
 
   // Check authentication and fetch profile
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    const userId = getUserId();
     if (!userId) {
       navigate("/login");
       return;

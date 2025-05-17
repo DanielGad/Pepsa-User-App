@@ -3,8 +3,10 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Footer from "../../components/Footer";
 import { ClipLoader } from "react-spinners";
 import Order from "../../assets/images/order.png";
-import { FaChevronDown, FaChevronUp, FaEye, FaPrint, FaTrashAlt } from "react-icons/fa";
+import { FaCheckCircle, FaChevronDown, FaChevronUp, FaExclamationCircle, FaEye, FaPrint, FaTrashAlt } from "react-icons/fa";
 import Discount from "../../assets/images/discount.png"
+import { getUserId } from "../../components/CartContext";
+import useAutoLogout from "../../components/AutoLogout";
 
 interface OrderItem {
   name: string;
@@ -36,6 +38,7 @@ interface Order {
 }
 
 const Invoice: React.FC = () => {
+  useAutoLogout()
   const { invoiceId } = useParams<{ invoiceId: string }>();
   const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
@@ -44,6 +47,7 @@ const Invoice: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [tempOrder, setTempOrder] = useState<Order | null>(null);
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const togglePaymentSummary = () => {
   setShowPaymentSummary(prev => !prev);
@@ -53,6 +57,16 @@ const Invoice: React.FC = () => {
   const Delivery = ["Vendor Delivery", "Self Pickup", "Pepsa Dispatch"];
   const Fee = [6000, 0, 5000];
 
+    useEffect(() => {
+      if (error || success) {
+        const t = setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 2000);
+        return () => clearTimeout(t);
+      }
+    }, [error, success]);
+
   useEffect(() => {
     if (!invoiceId) {
       setError("Invoice ID is missing");
@@ -60,7 +74,7 @@ const Invoice: React.FC = () => {
       return;
     }
 
-    const userId = localStorage.getItem("userId");
+    const userId = getUserId();
     if (!userId) {
       navigate("/login");
       return;
@@ -238,7 +252,7 @@ const Invoice: React.FC = () => {
       setButtonLoading(true);
       setError(null);
   
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       if (!userId) {
         navigate("/login");
         return;
@@ -284,6 +298,7 @@ const Invoice: React.FC = () => {
       
       setOrder(updatedOrder);
       setTempOrder(updatedOrder);
+      setSuccess("Order placed successfully!")
       
       // alert("Order placed successfully!");
         navigate("/order-history");
@@ -301,7 +316,7 @@ const Invoice: React.FC = () => {
 
     try {
       setLoading(true);
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       if (!userId) {
         navigate("/login");
         return;
@@ -381,6 +396,16 @@ const Invoice: React.FC = () => {
 
   return (
     <>
+     {success && (
+                    <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded flex items-center gap-2 z-50">
+                      <FaCheckCircle /> {success}
+                    </div>
+                  )}
+                  {error && (
+                    <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center gap-2 z-50">
+                      <FaExclamationCircle /> {error}
+                    </div>
+                  )}
       <div className="lg:hidden mt-[-20px] mb-10 flex justify-center gap-2 text-sm bg-gray-200 py-1 relative">
           <Link to={"/"}><span>Home</span></Link> &gt;
           <Link to={"/account"}><span>My Account</span></Link> &gt;

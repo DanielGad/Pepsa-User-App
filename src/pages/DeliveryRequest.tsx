@@ -8,9 +8,13 @@ import Van from "../assets/images/van.png";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaSpinner } from "react-icons/fa";
+import { getUserId, useSpinner } from "../components/CartContext";
+import useAutoLogout from "../components/AutoLogout";
 
 const DeliveryRequest = () => {
+  useAutoLogout()
   const navigate = useNavigate();
+  const { showSpinner } = useSpinner();
   const [saving, setSaving] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
@@ -25,7 +29,7 @@ const DeliveryRequest = () => {
   });
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    const userId = getUserId();
     if (!userId) {
       navigate("/login");
       return;
@@ -82,7 +86,7 @@ const DeliveryRequest = () => {
   
     try {
       setSaving(true);
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       if (!userId) {
         navigate("/login");
         return;
@@ -118,12 +122,14 @@ const DeliveryRequest = () => {
       );
   
       if (!updateResponse.ok) throw new Error("Failed to update delivery request");
-  
-      alert("Delivery request saved successfully!");
+
+      showSpinner("success", "Delivery request saved successfully!");
+      setTimeout(() => {
       navigate("/checkout");
+      }, 1500);
     } catch (err) {
       console.error("Error saving delivery request:", err);
-      alert("There was an error saving your delivery request. Please try again.");
+      showSpinner("error", "There was an error saving your delivery request. Please try again.");
     } finally {
       setSaving(false);
     }

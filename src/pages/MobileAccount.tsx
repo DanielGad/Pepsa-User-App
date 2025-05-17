@@ -7,6 +7,8 @@ import Footer from "../components/Footer";
 import ChangePasswordModal from "../components/ChangePassword";
 import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
+import { getUserId, logoutUser } from "../components/CartContext";
+import useAutoLogout from "../components/AutoLogout";
 // import { useCart } from "../components/CartContext";
 
 interface UserProfile {
@@ -22,6 +24,7 @@ interface UserProfile {
 
 const MobileAccount: React.FC = () => {
   const navigate = useNavigate();
+  useAutoLogout()
   // const {clearCart} = useCart();
   const [openModal, setOpenModal] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -31,7 +34,7 @@ const MobileAccount: React.FC = () => {
 
   // Check if user is logged in and fetch profile
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    const userId = getUserId();;
     if (!userId) {
       navigate("/login");
       return;
@@ -92,7 +95,7 @@ const MobileAccount: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("userId");
+    logoutUser()
     // clearCart();
     navigate("/login");
   };

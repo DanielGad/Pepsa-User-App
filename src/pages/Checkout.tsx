@@ -1,12 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../components/CartContext";
+import { getUserId, useCart } from "../components/CartContext";
 import Footer from "../components/Footer";
-import { FaChevronDown, FaChevronUp, FaTrashAlt } from "react-icons/fa";
-import { useState } from "react";
+import { FaCheckCircle, FaChevronDown, FaChevronUp, FaExclamationCircle, FaTrashAlt } from "react-icons/fa";
+import { useEffect, useState } from "react";
 import Discount from "../assets/images/discount.png";
+import useAutoLogout from "../components/AutoLogout";
 
 const Checkout = () => {
+  useAutoLogout()
   const navigate = useNavigate();
+  // const { showSpinner } = useSpinner();
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
 
   const Delivery = ["Vendor Delivery", "Self Pickup", "Pepsa Dispatch"];
@@ -15,12 +20,21 @@ const Checkout = () => {
 
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [loadingInvoice, setLoadingInvoice] = useState(false);
-  const [message, setMessage] = useState("");
-    const [showPaymentSummary, setShowPaymentSummary] = useState(false);
+  const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   
     const togglePaymentSummary = () => {
     setShowPaymentSummary(prev => !prev);
   };
+
+    useEffect(() => {
+      if (error || success) {
+        const t = setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 2000);
+        return () => clearTimeout(t);
+      }
+    }, [error, success]);
 
   const subtotal = cartItems.reduce((total, item) => {
     const variationPrice =
@@ -42,13 +56,13 @@ const Checkout = () => {
   const handlePlaceOrder = async () => {
     try {
       setLoadingOrder(true);
-      setMessage("");
   
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       if (!userId) {
         navigate("/login");
         return;
       }
+      
 
       const generateOrderId = () => Math.floor(10000000 + Math.random() * 90000000);
   
@@ -99,12 +113,12 @@ const Checkout = () => {
   
       if (!updateResponse.ok) throw new Error("Failed to update user with new order");
   
-      setMessage("Order placed successfully!");
+      setSuccess("Order placed successfully!");
       setTimeout(() => navigate("/order-history"), 1000);
       clearCart();
     } catch (error) {
       console.error("Failed to place order:", error);
-      setMessage("There was an error placing your order.");
+      setError("There was an error placing your order.");
     } finally {
       setLoadingOrder(false);
     }
@@ -114,9 +128,8 @@ const Checkout = () => {
   const handleInvoice = async () => {
     try {
       setLoadingInvoice(true);
-      setMessage("");
   
-      const userId = localStorage.getItem("userId");
+      const userId = getUserId();
       if (!userId) {
         navigate("/login");
         return;
@@ -173,14 +186,14 @@ const Checkout = () => {
   
       if (!updateResponse.ok) throw new Error("Failed to update user with new order");
   
-      setMessage("Invoice Requested successfully!");
+      await setSuccess("Invoice Requested successfully!");
       setTimeout(() => {
         navigate("/order-history");
       }, 1000);
       clearCart();
     } catch (error) {
       console.error("Failed to place order:", error);
-      setMessage("There was an error placing your order.");
+      setSuccess("There was an error placing your order.");
     } finally {
       setLoadingInvoice(false);
     }
@@ -192,6 +205,16 @@ const Checkout = () => {
   return (
     <>
       <div className="p-4 md:p-6 lg:mx-20">
+         {success && (
+                <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded flex items-center gap-2 z-50">
+                  <FaCheckCircle /> {success}
+                </div>
+              )}
+              {error && (
+                <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center gap-2 z-50">
+                  <FaExclamationCircle /> {error}
+                </div>
+              )}
         {
           cartItems.length === 0 ? "" : 
           <div className="flex md:flex-row items-center justify-between mb-4 px-2 md:px-5">
@@ -446,9 +469,6 @@ const Checkout = () => {
               >
                 {loadingInvoice ? "Processing..." : "Request for Quotation"}
               </button>
-              {message && (
-                <p className="mt-4 text-center text-sm text-gray-600">{message}</p>
-              )}
             </div>
           </>
         ) : (

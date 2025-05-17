@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../components/CartContext";
+import { getUserId, useCart } from "../components/CartContext";
 import Footer from "../components/Footer";
 import { FaSpinner, FaTrashAlt } from "react-icons/fa";
 import { useState } from "react";
@@ -13,7 +13,7 @@ const Cart: React.FC = () => {
   const handleConfirm = async () => {
     setConfirming(true)
     // 1) Must be logged in
-    const userId = localStorage.getItem("userId");
+    const userId = getUserId();
     if (!userId) {
       navigate("/login");
       return;

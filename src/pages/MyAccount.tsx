@@ -8,6 +8,8 @@ import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
 import ChangePasswordModal from "../components/ChangePassword";
 import { FaCheckCircle, FaExclamationCircle, FaEdit } from "react-icons/fa";
+import { getUserId, logoutUser } from "../components/CartContext";
+import useAutoLogout from "../components/AutoLogout";
 // import { useCart } from "../components/CartContext";
 
 
@@ -22,6 +24,7 @@ interface UserProfile {
 }
 
 const MyAccount: React.FC = () => {
+  useAutoLogout()
   const navigate = useNavigate();
   // const { clearCart } = useCart();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -45,7 +48,7 @@ const MyAccount: React.FC = () => {
 
   // Check if user is logged in
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    const userId = getUserId();
     if (!userId) {
       navigate("/login");
       return;
@@ -133,7 +136,7 @@ const MyAccount: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("userId");
+    logoutUser()
     localStorage.removeItem("authToken");
     // clearCart()
     navigate("/login");
@@ -242,7 +245,7 @@ const MyAccount: React.FC = () => {
   if (!user) {
     return (
       <div className="text-center py-10">
-        <p className="text-red-600 mb-4">Check your internet connection and try again</p>
+        <p className="text-red-600 mb-4">Failed to fetch user profile</p>
         <button
           onClick={() => window.location.reload()}
           className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"

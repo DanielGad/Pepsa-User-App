@@ -24,7 +24,7 @@ import Paid from './pages/OrderDetails/Paid';
 import Dispatched from './pages/OrderDetails/Dispatched';
 import Processing from './pages/OrderDetails/Processing';
 
-function App() {
+const App = () => {
 
   const [isMobile, setIsMobile] = useState(false);
 

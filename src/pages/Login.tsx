@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import bcrypt from "bcryptjs";
+import { setUserId } from "../components/CartContext";
 
 interface User {
   id: string;
@@ -86,7 +87,8 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       const user = await authenticateUser(identifier, password);
-      localStorage.setItem("userId", user.id);
+      setUserId(user.id)
+      // localStorage.setItem("userId", user.id);
       setSuccess("Login successful!");
       setTimeout(() => navigate("/account"), 500);
     } catch (err: unknown) {
