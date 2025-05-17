@@ -1,10 +1,12 @@
 import { useEffect, useRef, useCallback } from "react";
 import { getUserId, logoutUser } from "../components/CartContext";
 import { useNavigate } from "react-router-dom";
+import { useSpinner } from "../components/CartContext";
 
-const INACTIVITY_LIMIT = 1 * 60 * 1000;
+const INACTIVITY_LIMIT = 0.5 * 60 * 1000;
 
 const useAutoLogout = () => {
+const { showSpinner } = useSpinner();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
@@ -15,11 +17,11 @@ const useAutoLogout = () => {
       const userId = getUserId(); // recheck user ID when timeout triggers
       if (userId) {
         logoutUser();
-        alert("You have been logged out due to inactivity.");
+        showSpinner("error", "Session Timed Out!")
         navigate("/login");
       }
     }, INACTIVITY_LIMIT);
-  }, [navigate]);
+  }, [navigate, showSpinner]);
 
   useEffect(() => {
     const userId = getUserId();

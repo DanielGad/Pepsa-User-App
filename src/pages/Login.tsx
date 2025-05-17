@@ -88,7 +88,6 @@ const Login: React.FC = () => {
     try {
       const user = await authenticateUser(identifier, password);
       setUserId(user.id)
-      // localStorage.setItem("userId", user.id);
       setSuccess("Login successful!");
       setTimeout(() => navigate("/account"), 500);
     } catch (err: unknown) {
